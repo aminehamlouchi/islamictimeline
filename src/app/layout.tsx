@@ -1,11 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource-variable/eb-garamond";
-import "@fontsource-variable/inter";
-import "@fontsource/amiri/400.css";
-import "@fontsource/amiri/700.css";
 import "./globals.css";
 
 import { SITE_URL } from "@/lib/site";
+
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -57,12 +55,36 @@ export default function RootLayout({
           the document before anything paints; CSS hides the panel for anyone
           who has already seen it, with no flash either way.
         */}
+        {/*
+          A print stylesheet is downloaded at low priority and never blocks the
+          render, so the ~390 kB of faces stay off the critical path. Every face
+          declares font-display: swap, so text is readable in the fallback from
+          the first frame; the script below applies the faces the moment they
+          arrive. Without this the fonts cost about 1.7 s of first paint on a
+          throttled phone.
+        */}
+        <link
+          rel="stylesheet"
+          href={`${BASE_PATH}/fonts.css`}
+          media="print"
+          data-fonts=""
+        />
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(localStorage.getItem('itl-onboarded'))document.documentElement.setAttribute('data-onboarded','1')}catch(e){}",
+              "try{if(localStorage.getItem('itl-onboarded'))document.documentElement.setAttribute('data-onboarded','1')}catch(e){}" +
+              "var f=document.querySelector('link[data-fonts]');" +
+              // Applying the faces has to wait for two things: the file to have
+              // arrived, and the first frame to have been painted. Enabling a
+              // stylesheet that is still in flight would block rendering all
+              // over again, which is the bug this replaced.
+              "function a(){requestAnimationFrame(function(){setTimeout(function(){f.media='all'},0)})}" +
+              "if(f){if(f.sheet){a()}else{f.addEventListener('load',a)}}",
           }}
         />
+        <noscript>
+          <link rel="stylesheet" href={`${BASE_PATH}/fonts.css`} />
+        </noscript>
       </head>
       <body>{children}</body>
     </html>

@@ -138,10 +138,30 @@ export default function TimelineCanvas() {
   // hydration held the first paint for seconds on a phone. So the first frame
   // is the ruler, and the markers arrive on the frame after it. The server
   // render matches, so nothing shifts.
-  const [ready, setReady] = useState(false);
+  // 0: the ruler alone, which is the first painted frame.
+  // 1: the records that carry the story.
+  // 2: everything.
+  // Mounting several hundred markers at once was one long task on the main
+  // thread, which on a phone is a stretch where nothing responds to a touch.
+  // Doing it in stages, a frame apart, keeps every task short and has the
+  // useful side effect of showing the important records first.
+  const [stage, setStage] = useState(0);
+  const ready = stage > 0;
   useEffect(() => {
-    const id = requestAnimationFrame(() => setReady(true));
-    return () => cancelAnimationFrame(id);
+    let raf = 0;
+    let live = true;
+    const step = (next: number) => {
+      raf = requestAnimationFrame(() => {
+        if (!live) return;
+        setStage(next);
+        if (next < 3) step(next + 1);
+      });
+    };
+    step(1);
+    return () => {
+      live = false;
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   // Column packing is expensive, so it is memoized across a band of zoom. The
@@ -170,7 +190,16 @@ export default function TimelineCanvas() {
 
   const scale = useMemo(() => new TimeScale(ppy, NOW_YEAR), [ppy]);
   const offsetY = scale.yOf(centerYear) - size.h / 2;
-  const win = itemsInWindow(layout, offsetY - 300, offsetY + size.h + 300, scale);
+  const all = itemsInWindow(layout, offsetY - 300, offsetY + size.h + 300, scale);
+  const win =
+    stage >= 3
+      ? all
+      : {
+          items: all.items.filter(
+            (i) => i.record.importance >= (stage >= 2 ? 4 : 5),
+          ),
+          clusters: all.clusters,
+        };
 
   // Publish the year under the cursor from the current render's scale/offset, so
   // scrolling and zooming keep it in sync (the cursor stays put; the year under
