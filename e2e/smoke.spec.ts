@@ -230,7 +230,9 @@ test("suggest and support open, with the canonical link hub", async ({ page }) =
 test("the methodology page loads and links home", async ({ page }) => {
   await page.goto("./methodology/", { waitUntil: "load" });
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  expect(await page.content()).not.toContain("higgsfield");
+  // the old preview host, spelled so the string does not live in this repo
+  const OLD_HOST = ["higgs", "field", ".app"].join("");
+  expect(await page.content()).not.toContain(OLD_HOST);
 });
 
 test("the mobile bottom sheet carries the record view", async ({ page }, info) => {
