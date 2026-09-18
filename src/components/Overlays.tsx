@@ -476,7 +476,7 @@ export function Onboarding() {
           </button>
           <button
             className="btn"
-            style={{ borderColor: "var(--gold)", color: "var(--gold)" }}
+            style={{ borderColor: "var(--gold)", color: "var(--gold-ink)" }}
             onClick={() =>
               step === STEPS.length - 1 ? done() : setOnboardStep(step + 1)
             }

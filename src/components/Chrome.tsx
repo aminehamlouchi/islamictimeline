@@ -358,9 +358,9 @@ export function ZoomControl() {
             key={z.id}
             onClick={() => setPpy(z.ppy, centerYear)}
             aria-pressed={level.id === z.id}
-            className="rounded px-2 py-[1px] text-left text-[10.5px] leading-[1.5] transition-colors"
+            className="flex min-h-[24px] items-center rounded px-2 text-left text-[10.5px] leading-[1.5] transition-colors"
             style={{
-              color: level.id === z.id ? "var(--gold)" : "var(--ink-faint)",
+              color: level.id === z.id ? "var(--gold-ink)" : "var(--ink-soft)",
               fontWeight: level.id === z.id ? 650 : 400,
             }}
           >
@@ -389,7 +389,7 @@ export function ReturnToToday() {
   return (
     <button
       className="btn fade-up fixed left-1/2 top-[6.5rem] z-30 -translate-x-1/2 sm:top-16"
-      style={{ borderColor: "var(--gold)", color: "var(--gold)" }}
+      style={{ borderColor: "var(--gold)", color: "var(--gold-ink)" }}
       onClick={returnToToday}
       data-testid="return-to-today"
     >

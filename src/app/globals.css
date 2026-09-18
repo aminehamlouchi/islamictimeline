@@ -15,6 +15,8 @@
   --rule: #d8cdb6;
   --line: #3a352c;
   --gold: #a07d1c;
+  /* the same gold, darkened only where it carries text, so it clears 4.5:1 */
+  --gold-ink: #6f5510;
   --gold-soft: #c8a94e;
   --lapis: #26619c;
   --lapis-soft: #7c9fc4;
@@ -49,6 +51,7 @@
   --rule: #3a352a;
   --line: #d8cdb2;
   --gold: #d3b25c;
+  --gold-ink: #e3c877;
   --gold-soft: #93803f;
   --lapis: #7ea8d8;
   --lapis-soft: #4a6d94;
@@ -80,6 +83,7 @@
     --rule: #3a352a;
     --line: #d8cdb2;
     --gold: #d3b25c;
+  --gold-ink: #e3c877;
     --gold-soft: #93803f;
     --lapis: #7ea8d8;
     --lapis-soft: #4a6d94;
@@ -109,6 +113,7 @@
   --rule: #3a352a;
   --line: #d8cdb2;
   --gold: #d3b25c;
+  --gold-ink: #e3c877;
   --gold-soft: #93803f;
   --lapis: #7ea8d8;
   --lapis-soft: #4a6d94;

@@ -39,8 +39,8 @@ export const viewport: Viewport = {
   ],
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false, // pinch is used for timeline zoom
+  // The canvas takes pinch for timeline zoom through `touch-action: none`, so
+  // the page itself can stay zoomable for anyone who needs to magnify the text.
 };
 
 export default function RootLayout({
