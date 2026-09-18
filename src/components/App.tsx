@@ -8,7 +8,11 @@
 import { useEffect } from "react";
 import TimelineCanvas from "./TimelineCanvas";
 import DetailPanel from "./DetailPanel";
-import MapPanel from "./MapPanel";
+import dynamic from "next/dynamic";
+
+// The atlas carries the coastline, the schematic extents and the city list, and
+// none of it is needed to paint the timeline. It arrives when it is opened.
+const MapPanel = dynamic(() => import("./MapPanel"), { ssr: false });
 import { CompareTray, CompareView } from "./Compare";
 import {
   FiltersPanel,
