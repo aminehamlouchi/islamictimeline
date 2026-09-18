@@ -1,0 +1,39 @@
+# Third-party notices
+
+The Islamic Timeline bundles or derives from the following works. Each keeps its
+own license and attribution.
+
+## Map data
+
+- **Historical Basemaps** (A. Ourednik and contributors), GPL-3.0.
+  Source of the historical border snapshots in `public/borders/` and
+  `src/data/geo/borders/`. https://github.com/aourednik/historical-basemaps
+  Because these files are GPL-3.0, the border data in this repository is
+  redistributed under GPL-3.0.
+- **Natural Earth**, public domain. Source of the generated coastline in
+  `src/data/geo/land-path.ts`, via the `world-atlas` package.
+  https://www.naturalearthdata.com/
+
+The atlas draws schematic extents, not surveyed borders. See `/methodology` for
+the policy.
+
+## Fonts
+
+- **EB Garamond**, SIL Open Font License 1.1.
+- **Inter**, SIL Open Font License 1.1.
+- **Amiri**, SIL Open Font License 1.1.
+
+Delivered through the Fontsource packages; each package carries its own license
+file under `node_modules`.
+
+## Software
+
+Runtime and build dependencies (Next.js, React, Tailwind CSS, zustand, Vitest,
+Playwright and others) keep the licenses declared in their own packages.
+
+## This project's own code
+
+No license has been chosen for the original code and dataset in this repository.
+That is the author's decision to make. Until a LICENSE file is added, default
+copyright applies to the original work here; the third-party components above
+are governed by their own licenses regardless.

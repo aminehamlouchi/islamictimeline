@@ -1,0 +1,430 @@
+/**
+ * Companions of the Prophet ﷺ and the early generations (Ṣaḥāba & Tābiʿūn).
+ * Death dates are usually attested in AH; many birth years are approximate.
+ */
+import type { TimelineRecord } from "@/lib/types";
+
+const EI2 = (entry: string, author?: string) => ({
+  source: "Encyclopaedia of Islam, 2nd ed. (Brill)",
+  detail: `s.v. "${entry}"${author ? ` (${author})` : ""}`,
+});
+const SIYAR = {
+  source: "al-Dhahabī, Siyar aʿlām al-nubalāʾ",
+  detail: "primary biographical source",
+};
+
+export const companionRecords: TimelineRecord[] = [
+  {
+    id: "abu-bakr",
+    kind: "person",
+    lane: "companions",
+    name: "Abū Bakr al-Ṣiddīq",
+    arabic: "أبو بكر الصديق",
+    start: { year: 573, precision: "circa" },
+    end: {
+      year: 634,
+      month: 8,
+      precision: "exact",
+      hijri: { year: 13, source: "attested" },
+    },
+    importance: 5,
+    region: "arabia",
+    location: { name: "Madinah", lat: 24.47, lng: 39.61 },
+    summary:
+      "Closest companion of the Prophet ﷺ, his companion in the Hijra, and the first caliph (632–634). He held the community together through the Ridda wars and began the compilation of the Qurʾan into a single collection.",
+    relations: [
+      {
+        type: "ruled_during",
+        target: "rashidun-caliphate",
+        note: "first caliph, 632–634",
+      },
+      { type: "related", target: "ridda-wars" },
+    ],
+    citations: [EI2("Abū Bakr", "W. Montgomery Watt"), SIYAR],
+    details: [
+      {
+        date: {
+          year: 632,
+          precision: "year",
+          hijri: { year: 11, source: "attested" },
+        },
+        label: "Elected caliph at Saqīfat Banī Sāʿida",
+      },
+      { date: { year: 632, precision: "year" }, label: "Ridda wars begin" },
+      {
+        date: {
+          year: 634,
+          precision: "year",
+          hijri: { year: 13, source: "attested" },
+        },
+        label: "Death in Madinah",
+      },
+    ],
+  },
+  {
+    id: "umar-ibn-al-khattab",
+    kind: "person",
+    lane: "companions",
+    name: "ʿUmar ibn al-Khaṭṭāb",
+    arabic: "عمر بن الخطاب",
+    start: { year: 584, precision: "circa" },
+    end: {
+      year: 644,
+      month: 11,
+      precision: "exact",
+      hijri: { year: 23, source: "attested" },
+      note: "Assassinated in Madinah, Dhū al-Ḥijja 23 AH.",
+    },
+    importance: 5,
+    region: "arabia",
+    location: { name: "Madinah", lat: 24.47, lng: 39.61 },
+    summary:
+      "Second caliph (634–644). Under his rule the conquests of Syria, Iraq, and Egypt reshaped the Near East; he instituted the dīwān, the Hijri calendar, and received the surrender of Jerusalem.",
+    relations: [
+      {
+        type: "ruled_during",
+        target: "rashidun-caliphate",
+        note: "caliph, 634–644",
+      },
+      { type: "related", target: "conquest-of-jerusalem-637" },
+      { type: "related", target: "battle-of-yarmuk" },
+    ],
+    citations: [EI2("ʿUmar (I) b. al-Khaṭṭāb"), SIYAR],
+  },
+  {
+    id: "uthman-ibn-affan",
+    kind: "person",
+    lane: "companions",
+    name: "ʿUthmān ibn ʿAffān",
+    arabic: "عثمان بن عفان",
+    start: { year: 576, precision: "circa" },
+    end: {
+      year: 656,
+      month: 6,
+      precision: "exact",
+      hijri: { year: 35, source: "attested" },
+      note: "Killed in his house in Madinah during the first fitna's opening crisis.",
+    },
+    importance: 5,
+    region: "arabia",
+    location: { name: "Madinah", lat: 24.47, lng: 39.61 },
+    summary:
+      "Third caliph (644–656), a wealthy early convert married successively to two daughters of the Prophet ﷺ. He standardized the written Qurʾanic codex and expanded the conquests before ending as the victim of a mutiny.",
+    relations: [
+      {
+        type: "ruled_during",
+        target: "rashidun-caliphate",
+        note: "caliph, 644–656",
+      },
+      { type: "related", target: "uthmanic-codex" },
+    ],
+    citations: [EI2("ʿUthmān b. ʿAffān"), SIYAR],
+  },
+  {
+    id: "ali-ibn-abi-talib",
+    kind: "person",
+    lane: "companions",
+    name: "ʿAlī ibn Abī Ṭālib",
+    arabic: "علي بن أبي طالب",
+    start: { year: 600, precision: "circa" },
+    end: {
+      year: 661,
+      month: 1,
+      precision: "exact",
+      hijri: { year: 40, source: "attested" },
+      note: "Struck down in Kufa, Ramadan 40 AH.",
+    },
+    importance: 5,
+    region: "arabia",
+    location: { name: "Kufa", lat: 32.03, lng: 44.4 },
+    summary:
+      "Cousin and son-in-law of the Prophet ﷺ and fourth caliph (656–661), revered across Sunni and Shīʿī tradition for his knowledge and courage. His caliphate was consumed by the first civil war (fitna).",
+    relations: [
+      {
+        type: "ruled_during",
+        target: "rashidun-caliphate",
+        note: "caliph, 656–661",
+      },
+    ],
+    citations: [EI2("ʿAlī b. Abī Ṭālib"), SIYAR],
+  },
+  {
+    id: "aisha",
+    kind: "person",
+    lane: "companions",
+    name: "ʿĀʾisha bint Abī Bakr",
+    arabic: "عائشة بنت أبي بكر",
+    start: { year: 614, precision: "circa" },
+    end: {
+      year: 678,
+      precision: "year",
+      hijri: { year: 58, source: "attested" },
+    },
+    importance: 4,
+    region: "arabia",
+    location: { name: "Madinah", lat: 24.47, lng: 39.61 },
+    summary:
+      "Wife of the Prophet ﷺ and one of the greatest scholars of the first generation: more than two thousand hadith are narrated on her authority, and senior Companions consulted her on law and inheritance.",
+    citations: [EI2("ʿĀʾisha bint Abī Bakr", "W. Montgomery Watt"), SIYAR],
+  },
+  {
+    id: "khalid-ibn-al-walid",
+    kind: "person",
+    lane: "companions",
+    name: "Khālid ibn al-Walīd",
+    arabic: "خالد بن الوليد",
+    start: { year: 585, precision: "circa" },
+    end: {
+      year: 642,
+      precision: "year",
+      hijri: { year: 21, source: "attested" },
+    },
+    importance: 4,
+    region: "levant",
+    location: { name: "Homs", lat: 34.73, lng: 36.72 },
+    summary:
+      'Commander surnamed "the Sword of God", undefeated across the Ridda wars and the conquests of Iraq and Syria, including the decisive victory at Yarmuk.',
+    relations: [
+      { type: "fought_in", target: "battle-of-yarmuk" },
+      { type: "related", target: "ridda-wars" },
+    ],
+    citations: [EI2("Khālid b. al-Walīd"), SIYAR],
+  },
+  {
+    id: "bilal-ibn-rabah",
+    kind: "person",
+    lane: "companions",
+    name: "Bilāl ibn Rabāḥ",
+    arabic: "بلال بن رباح",
+    start: { year: 580, precision: "circa" },
+    end: {
+      year: 640,
+      precision: "circa",
+      hijri: { year: 20, source: "attested" },
+      note: "Death dated 17–21 AH in different sources; Damascus is the usual burial place.",
+    },
+    importance: 3,
+    region: "arabia",
+    location: { name: "Damascus", lat: 33.51, lng: 36.29 },
+    summary:
+      "An Abyssinian former slave freed by Abū Bakr, tortured for his faith in Makkah, and honored as the first muezzin of Islam.",
+    citations: [EI2("Bilāl b. Rabāḥ"), SIYAR],
+  },
+  {
+    id: "ibn-abbas",
+    kind: "person",
+    lane: "companions",
+    name: "ʿAbdullāh ibn ʿAbbās",
+    arabic: "عبد الله بن عباس",
+    start: { year: 619, precision: "circa" },
+    end: {
+      year: 687,
+      precision: "year",
+      hijri: { year: 68, source: "attested" },
+    },
+    importance: 4,
+    region: "arabia",
+    location: { name: "Ṭāʾif", lat: 21.27, lng: 40.42 },
+    summary:
+      'Cousin of the Prophet ﷺ, called "the interpreter of the Qurʾan" (tarjumān al-Qurʾān) and the father of tafsīr; a fountainhead of exegesis and law for the following generations.',
+    citations: [EI2("ʿAbd Allāh b. al-ʿAbbās"), SIYAR],
+  },
+  {
+    id: "abu-hurayra",
+    kind: "person",
+    lane: "companions",
+    name: "Abū Hurayra",
+    arabic: "أبو هريرة",
+    start: { year: 603, precision: "circa" },
+    end: {
+      year: 678,
+      precision: "circa",
+      hijri: { year: 59, source: "attested" },
+      note: "Death reported 57–59 AH.",
+    },
+    importance: 4,
+    region: "arabia",
+    location: { name: "Madinah", lat: 24.47, lng: 39.61 },
+    summary:
+      "The most prolific narrator of hadith among the Companions, over five thousand reports, who devoted his later life in Madinah to preserving and teaching the Prophet's ﷺ words.",
+    citations: [EI2("Abū Hurayra"), SIYAR],
+  },
+  {
+    id: "zayd-ibn-thabit",
+    kind: "person",
+    lane: "companions",
+    name: "Zayd ibn Thābit",
+    arabic: "زيد بن ثابت",
+    start: { year: 610, precision: "circa" },
+    end: {
+      year: 665,
+      precision: "circa",
+      hijri: { year: 45, source: "attested" },
+      note: "Death reported 42–56 AH; 45 AH is common.",
+    },
+    importance: 3,
+    region: "arabia",
+    location: { name: "Madinah", lat: 24.47, lng: 39.61 },
+    summary:
+      "Scribe of the revelation in Madinah, later chief of the committees that collected the Qurʾan under Abū Bakr and standardized the codex under ʿUthmān.",
+    relations: [
+      {
+        type: "related",
+        target: "uthmanic-codex",
+        note: "led the compilation committee",
+      },
+    ],
+    citations: [EI2("Zayd b. Thābit"), SIYAR],
+  },
+  {
+    id: "ibn-masud",
+    kind: "person",
+    lane: "companions",
+    name: "ʿAbdullāh ibn Masʿūd",
+    arabic: "عبد الله بن مسعود",
+    start: { year: 594, precision: "circa" },
+    end: {
+      year: 653,
+      precision: "year",
+      hijri: { year: 32, source: "attested" },
+    },
+    importance: 3,
+    region: "iraq-iran",
+    location: { name: "Madinah", lat: 24.47, lng: 39.61 },
+    summary:
+      "Early convert and master of Qurʾanic recitation and law; his teaching in Kufa seeded the Iraqi legal tradition that later fed into the Ḥanafī school.",
+    relations: [
+      {
+        type: "influenced",
+        target: "abu-hanifa",
+        note: "via the Kufan tradition",
+      },
+    ],
+    citations: [EI2("Ibn Masʿūd"), SIYAR],
+  },
+  {
+    id: "muawiya",
+    kind: "person",
+    lane: "companions",
+    name: "Muʿāwiya ibn Abī Sufyān",
+    arabic: "معاوية بن أبي سفيان",
+    start: { year: 602, precision: "circa" },
+    end: {
+      year: 680,
+      precision: "year",
+      hijri: { year: 60, source: "attested" },
+    },
+    importance: 4,
+    region: "levant",
+    location: { name: "Damascus", lat: 33.51, lng: 36.29 },
+    summary:
+      "Companion, long-time governor of Syria, and founder of the Umayyad caliphate (r. 661–680), moving the capital to Damascus and establishing dynastic rule after the first fitna.",
+    relations: [{ type: "founded", target: "umayyad-caliphate" }],
+    citations: [EI2("Muʿāwiya I"), SIYAR],
+  },
+  {
+    id: "husayn-ibn-ali",
+    kind: "person",
+    lane: "companions",
+    name: "al-Ḥusayn ibn ʿAlī",
+    arabic: "الحسين بن علي",
+    start: {
+      year: 626,
+      precision: "year",
+      hijri: { year: 4, source: "attested" },
+    },
+    end: {
+      year: 680,
+      month: 10,
+      day: 10,
+      precision: "exact",
+      hijri: { year: 61, source: "attested" },
+      note: "10 Muḥarram 61 AH, at Karbala.",
+    },
+    importance: 4,
+    region: "iraq-iran",
+    location: { name: "Karbala", lat: 32.62, lng: 44.03 },
+    summary:
+      "Grandson of the Prophet ﷺ, killed with his family and companions at Karbala in 680, a wound felt across the Muslim world ever since and a defining moment for Shīʿī identity.",
+    relations: [{ type: "related", target: "battle-of-karbala" }],
+    citations: [EI2("al-Ḥusayn b. ʿAlī"), SIYAR],
+  },
+  {
+    id: "umar-ibn-abd-al-aziz",
+    kind: "person",
+    lane: "companions",
+    name: "ʿUmar ibn ʿAbd al-ʿAzīz",
+    arabic: "عمر بن عبد العزيز",
+    start: {
+      year: 680,
+      precision: "circa",
+      hijri: { year: 61, source: "attested" },
+    },
+    end: {
+      year: 720,
+      precision: "year",
+      hijri: { year: 101, source: "attested" },
+    },
+    importance: 4,
+    region: "levant",
+    location: { name: "Damascus", lat: 33.51, lng: 36.29 },
+    summary:
+      'Umayyad caliph (r. 717–720) remembered as "the fifth rightly-guided caliph" for his justice, fiscal reform, and his order to begin the official collection of hadith.',
+    relations: [{ type: "ruled_during", target: "umayyad-caliphate" }],
+    citations: [EI2("ʿUmar (II) b. ʿAbd al-ʿAzīz"), SIYAR],
+  },
+  {
+    id: "hasan-al-basri",
+    kind: "person",
+    lane: "companions",
+    name: "al-Ḥasan al-Baṣrī",
+    arabic: "الحسن البصري",
+    start: {
+      year: 642,
+      precision: "year",
+      hijri: { year: 21, source: "attested" },
+    },
+    end: {
+      year: 728,
+      precision: "year",
+      hijri: { year: 110, source: "attested" },
+    },
+    importance: 4,
+    region: "iraq-iran",
+    location: { name: "Basra", lat: 30.51, lng: 47.81 },
+    summary:
+      "The towering preacher and scholar of the Successors (Tābiʿūn) in Basra, whose sermons on renunciation of the world shaped piety, theology, and the later Sufi tradition alike.",
+    citations: [EI2("Ḥasan al-Baṣrī", "H. Ritter"), SIYAR],
+  },
+  {
+    id: "said-ibn-al-musayyib",
+    kind: "person",
+    lane: "companions",
+    name: "Saʿīd ibn al-Musayyib",
+    arabic: "سعيد بن المسيب",
+    start: {
+      year: 637,
+      precision: "circa",
+      hijri: { year: 15, source: "attested" },
+    },
+    end: {
+      year: 713,
+      precision: "circa",
+      hijri: { year: 94, source: "attested" },
+      note: "Death reported 93–94 AH.",
+    },
+    importance: 3,
+    region: "arabia",
+    location: { name: "Madinah", lat: 24.47, lng: 39.61 },
+    summary:
+      'Chief of the "seven jurists of Madinah", son-in-law of Abū Hurayra, and a key link in transmitting the legal practice of Madinah to the generation of Mālik.',
+    relations: [
+      {
+        type: "influenced",
+        target: "malik-ibn-anas",
+        note: "via the Madinan legal tradition",
+      },
+    ],
+    citations: [EI2("Saʿīd b. al-Musayyab"), SIYAR],
+  },
+];
