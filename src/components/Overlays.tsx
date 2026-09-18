@@ -452,7 +452,7 @@ export function Onboarding() {
       aria-label="Introduction"
     >
       <div
-        className="panel fade-up w-[min(94vw,440px)] px-5 py-4"
+        className="panel w-[min(94vw,440px)] px-5 py-4"
         data-testid="onboarding"
       >
         <div
