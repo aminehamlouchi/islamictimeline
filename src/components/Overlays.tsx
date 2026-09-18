@@ -426,9 +426,12 @@ export function Onboarding() {
   const step = useApp((s) => s.onboardStep);
   const setOnboardStep = useApp((s) => s.setOnboardStep);
 
+  // Step 0 is the default, so the panel is in the first painted frame. The
+  // inline script in the document head has already hidden it for a returning
+  // visitor; this clears it from the tree once React is running.
   useEffect(() => {
     try {
-      if (!localStorage.getItem("itl-onboarded")) setOnboardStep(0);
+      if (localStorage.getItem("itl-onboarded")) setOnboardStep(-1);
     } catch {
       /* private mode */
     }
@@ -444,7 +447,7 @@ export function Onboarding() {
   const s = STEPS[step];
   return (
     <div
-      className="fixed inset-x-0 bottom-16 z-50 flex justify-center px-4"
+      className="tl-intro fixed inset-x-0 bottom-16 z-50 flex justify-center px-4"
       role="dialog"
       aria-label="Introduction"
     >

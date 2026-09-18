@@ -50,6 +50,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/*
+          The introduction is part of the first frame for a first-time visitor,
+          so it cannot wait for hydration to decide whether to exist. This marks
+          the document before anything paints; CSS hides the panel for anyone
+          who has already seen it, with no flash either way.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('itl-onboarded'))document.documentElement.setAttribute('data-onboarded','1')}catch(e){}",
+          }}
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

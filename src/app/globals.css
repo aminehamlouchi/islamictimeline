@@ -360,3 +360,8 @@ body {
 .pulse-soft {
   animation: pulseSoft 2.4s ease-in-out infinite;
 }
+
+/* A returning visitor never sees the introduction, and never sees it flash. */
+html[data-onboarded] .tl-intro {
+  display: none;
+}

@@ -98,7 +98,7 @@ export const useApp = create<AppState>()(
     minImportance: 1,
     regionsOn: null,
     theme: "auto",
-    onboardStep: -1,
+    onboardStep: 0, // shown in the first frame; the head script hides it for returning visitors
 
     setView: (year, ppy) =>
       set({ centerYear: clampCenterYear(year, NOW_YEAR), ppy: clampPpy(ppy) }),
