@@ -35,6 +35,8 @@ const LANE_COLOR: Record<string, string> = {
   world: "var(--slate)",
 };
 
+const EMPTY_LAYOUT = { items: [], clusters: [], packedAtPpy: 1 };
+
 function barWidth(imp: number): number {
   return imp >= 5 ? 8 : imp === 4 ? 6.5 : imp === 3 ? 5 : 4;
 }
@@ -114,6 +116,17 @@ export default function TimelineCanvas() {
   }, [flyTarget, reducedMotion, setView]);
 
   /* ------------------------------ layout ------------------------------ */
+  // The ruler (eras, bands, axis, the central line) is cheap and is what the
+  // first frame should be. Packing 392 records is not: doing it during
+  // hydration held the first paint for seconds on a phone. So the first frame
+  // is the ruler, and the markers arrive on the frame after it. The server
+  // render matches, so nothing shifts.
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setReady(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   // Column packing is expensive, so it is memoized across a band of zoom. The
   // key also carries the visibility threshold, so the set of markers is always
   // the set the current zoom asks for. What the packing must never do is hand
@@ -124,16 +137,18 @@ export default function TimelineCanvas() {
   const layoutKey = `${zoomBucket}:${visibleImportance(ppy)}`;
   const layout = useMemo(
     () =>
-      computeLayout({
-        ppy,
-        topYear: NOW_YEAR,
-        compact,
-        lanesOff,
-        minImportance,
-        regionsOn,
-      }),
+      ready
+        ? computeLayout({
+            ppy,
+            topYear: NOW_YEAR,
+            compact,
+            lanesOff,
+            minImportance,
+            regionsOn,
+          })
+        : EMPTY_LAYOUT,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [layoutKey, compact, lanesOff, minImportance, regionsOn],
+    [ready, layoutKey, compact, lanesOff, minImportance, regionsOn],
   );
 
   const scale = useMemo(() => new TimeScale(ppy, NOW_YEAR), [ppy]);
