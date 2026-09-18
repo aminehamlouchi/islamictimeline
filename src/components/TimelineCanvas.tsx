@@ -5,7 +5,24 @@
  * timeline. Today sits at the top; scrolling down travels into the past.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+/**
+ * The viewport has to be measured before the browser paints, not after. A
+ * post-paint measurement meant the first frame was drawn at the prerender's
+ * assumed size and then redrawn at the real one, which on a phone showed as a
+ * long wait for anything meaningful. useLayoutEffect does not exist during the
+ * static render, so fall back there.
+ */
+const useMeasure =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 import {
   computeLayout,
   itemsInWindow,
@@ -69,7 +86,7 @@ export default function TimelineCanvas() {
   );
 
   /* ------------------------------ sizing ------------------------------ */
-  useEffect(() => {
+  useMeasure(() => {
     const el = ref.current;
     if (!el) return;
     const ro = new ResizeObserver(() =>
