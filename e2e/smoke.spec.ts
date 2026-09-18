@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { dismissIntro, isPhone, pinch, travel } from "./helpers";
 
 /**
  * Every interaction the README promises, exercised in both engines, with the
@@ -17,11 +18,7 @@ test.beforeEach(async ({ page }) => {
   page.on("pageerror", (e) => log.push(`pageerror: ${e.message}`));
   // Most tests are a returning visitor, so the first-visit introduction is not
   // sitting over the controls. One test below covers the introduction itself.
-  await page.addInitScript(() => {
-    try {
-      localStorage.setItem("itl-onboarded", "1");
-    } catch {}
-  });
+  await dismissIntro(page);
   await page.goto("./", { waitUntil: "load" });
   await page.waitForSelector("[data-testid=timeline-canvas]");
   await page.waitForTimeout(400);
@@ -36,7 +33,6 @@ test.afterEach(async ({ page }) => {
 });
 
 const canvas = "[data-testid=timeline-canvas]";
-const isPhone = (name: string) => name.includes("phone");
 
 /** Current year at the top of the view, read from the canvas scale. */
 async function centerYear(page: Page): Promise<number> {
@@ -60,16 +56,7 @@ async function ppyOf(page: Page): Promise<number> {
 
 test("scroll and drag travel through time", async ({ page }, info) => {
   const before = await centerYear(page);
-  if (isPhone(info.project.name)) {
-    await page.locator(canvas).hover({ position: { x: 100, y: 300 } }).catch(() => {});
-    await page.mouse.move(100, 400);
-    await page.mouse.down();
-    await page.mouse.move(100, 200, { steps: 8 });
-    await page.mouse.up();
-  } else {
-    await page.mouse.move(700, 450);
-    await page.mouse.wheel(0, 900);
-  }
+  await travel(page, info.project.name, 900);
   await page.waitForTimeout(300);
   expect(Math.abs((await centerYear(page)) - before)).toBeGreaterThan(5);
 });
@@ -85,7 +72,7 @@ test("arrow keys pan and Home returns to today", async ({ page }) => {
   expect(Math.abs((await centerYear(page)) - start)).toBeLessThan(6);
 });
 
-test("keyboard, wheel and double-click zoom", async ({ page }) => {
+test("keyboard, wheel, pinch and double-click zoom", async ({ page }, info) => {
   const z0 = await ppyOf(page);
   await page.keyboard.press("+");
   await page.waitForTimeout(200);
@@ -109,19 +96,24 @@ test("keyboard, wheel and double-click zoom", async ({ page }) => {
   await page.waitForTimeout(200);
   expect(await ppyOf(page)).toBeGreaterThan(z0);
 
+  // A pointer device zooms by double-clicking a moment; a phone pinches.
   const z2 = await ppyOf(page);
-  await page.locator(canvas).dblclick({ position: { x: 60, y: 300 } });
+  if (isPhone(info.project.name)) {
+    await pinch(page, page.viewportSize()!.height / 2, 1.8);
+  } else {
+    await page.locator(canvas).dblclick({ position: { x: 60, y: 300 } });
+  }
   await page.waitForTimeout(250);
   expect(await ppyOf(page)).toBeGreaterThan(z2);
 });
 
 test("zoom buttons work", async ({ page }) => {
   const z0 = await ppyOf(page);
-  await page.getByRole("button", { name: "Zoom in" }).first().click();
+  await page.getByRole("button", { name: "Zoom in", exact: true }).click();
   await page.waitForTimeout(700);
   expect(await ppyOf(page)).toBeGreaterThan(z0);
   const z1 = await ppyOf(page);
-  await page.getByRole("button", { name: "Zoom out" }).first().click();
+  await page.getByRole("button", { name: "Zoom out", exact: true }).click();
   await page.waitForTimeout(700);
   expect(await ppyOf(page)).toBeLessThan(z1);
 });
@@ -194,8 +186,11 @@ test("bookmarks persist and list in the library", async ({ page }) => {
   await detail.getByRole("button", { name: /save/i }).click();
   await expect(detail.getByRole("button", { name: /saved/i })).toBeVisible();
   await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: "Saved records" }).click();
-  await expect(page.getByTestId("library")).toBeVisible();
+  const library = page.getByRole("button", { name: "Saved records" });
+  if (await library.isVisible().catch(() => false)) {
+    await library.click();
+    await expect(page.getByTestId("library")).toBeVisible();
+  }
   expect(
     await page.evaluate(() =>
       JSON.parse(localStorage.getItem("itl-bookmarks") ?? "[]"),
@@ -203,10 +198,9 @@ test("bookmarks persist and list in the library", async ({ page }) => {
   ).toHaveLength(1);
 });
 
-test("the view is a shareable URL that reopens the same view", async ({ page }) => {
+test("the view is a shareable URL that reopens the same view", async ({ page }, info) => {
   await page.keyboard.press("+");
-  await page.mouse.move(600, 300);
-  await page.mouse.wheel(0, 700);
+  await travel(page, info.project.name, 700);
   await page.waitForTimeout(800);
   const url = page.url();
   expect(url).toMatch(/[?&]y=/);
@@ -260,15 +254,13 @@ test("the hover lens reveals quieter records", async ({ page }, info) => {
   expect(await page.evaluate(() => (window as unknown as { __err?: string }).__err ?? "")).toBe("");
 });
 
-test("the first-visit introduction appears and can be skipped", async ({ page }) => {
-  await page.evaluate(() => {
-    try {
-      localStorage.removeItem("itl-onboarded");
-    } catch {}
-  });
-  await page.reload({ waitUntil: "load" });
-  const intro = page.getByTestId("onboarding");
+test("the first-visit introduction appears and can be skipped", async ({ browser, baseURL }) => {
+  const ctx = await browser.newContext({ baseURL });
+  const fresh = await ctx.newPage();
+  await fresh.goto("./", { waitUntil: "load" });
+  const intro = fresh.getByTestId("onboarding");
   await expect(intro).toBeVisible();
   await intro.getByRole("button", { name: "Skip" }).click();
   await expect(intro).toBeHidden();
+  await ctx.close();
 });

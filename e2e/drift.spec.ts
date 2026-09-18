@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { dismissIntro, travel } from "./helpers";
 
 /**
  * Path independence.
@@ -166,11 +167,7 @@ test.describe("scroll and zoom never move a marker off its date", () => {
 
     for (let run = 0; run < 3; run++) {
       const r = rand(1000 * (run + 1) + testInfo.project.name.length);
-      await page.addInitScript(() => {
-        try {
-          localStorage.setItem("itl-onboarded", "1");
-        } catch {}
-      });
+      await dismissIntro(page);
       await page.goto("./?y=1258&z=2.6", { waitUntil: "load" });
       await page.waitForTimeout(300);
       const intro = page.getByTestId("onboarding");
@@ -184,8 +181,7 @@ test.describe("scroll and zoom never move a marker off its date", () => {
         const pick = Math.floor(r() * 6);
         const y = 120 + r() * (box.height - 240);
         if (pick === 0) {
-          await page.mouse.move(box.width / 2, y);
-          await page.mouse.wheel(0, Math.round((r() - 0.35) * 900));
+          await travel(page, testInfo.project.name, Math.round((r() - 0.35) * 900), y);
         } else if (pick === 1) {
           await wheelZoom(page, y, Math.round((r() - 0.5) * 500));
         } else if (pick === 2) {
@@ -214,11 +210,7 @@ test.describe("scroll and zoom never move a marker off its date", () => {
       const url = page.url();
 
       const fresh = await page.context().newPage();
-      await fresh.addInitScript(() => {
-        try {
-          localStorage.setItem("itl-onboarded", "1");
-        } catch {}
-      });
+      await dismissIntro(fresh);
       await fresh.setViewportSize(box);
       await fresh.goto(url, { waitUntil: "load" });
       await settle(fresh);
