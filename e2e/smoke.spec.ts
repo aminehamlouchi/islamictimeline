@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { dismissIntro, isPhone, pinch, travel } from "./helpers";
+import { dismissIntro, isPhone, mounted, pinch, travel } from "./helpers";
 
 /**
  * Every interaction the README promises, exercised in both engines, with the
@@ -21,6 +21,7 @@ test.beforeEach(async ({ page }) => {
   await dismissIntro(page);
   await page.goto("./", { waitUntil: "load" });
   await page.waitForSelector("[data-testid=timeline-canvas]");
+  await mounted(page);
   await page.waitForTimeout(400);
   const intro = page.getByTestId("onboarding");
   if (await intro.isVisible().catch(() => false))

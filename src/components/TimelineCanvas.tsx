@@ -436,6 +436,7 @@ export default function TimelineCanvas() {
     <div
       ref={ref}
       data-testid="timeline-canvas"
+      data-stage={stage}
       data-ppy={ppy}
       data-offset-y={offsetY}
       data-now-year={NOW_YEAR}

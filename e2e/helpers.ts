@@ -3,6 +3,13 @@ import type { Page } from "@playwright/test";
 /** A visitor on a phone drags; mobile WebKit has no wheel at all. */
 export const isPhone = (project: string) => project.includes("phone");
 
+/** The markers mount in stages; wait for the last one before touching them. */
+export async function mounted(page: Page) {
+  await page.waitForSelector('[data-testid=timeline-canvas][data-stage="3"]', {
+    timeout: 20_000,
+  });
+}
+
 export async function dismissIntro(page: Page) {
   await page.addInitScript(() => {
     try {

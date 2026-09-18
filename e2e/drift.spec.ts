@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { dismissIntro, travel } from "./helpers";
+import { dismissIntro, mounted, travel } from "./helpers";
 
 /**
  * Path independence.
@@ -23,6 +23,7 @@ type Snap = {
 };
 
 async function settle(page: Page) {
+  await mounted(page);
   // Drop the hover lens first. It legitimately reveals extra labels under the
   // pointer, which widens a marker's box; a cold load has no pointer, so the
   // two are only comparable once both are un-hovered.
