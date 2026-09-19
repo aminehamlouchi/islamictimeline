@@ -217,8 +217,13 @@ test("an era landmark flies to its era", async ({ page }, info) => {
   await page.waitForTimeout(250);
   expect(await focusedOnScreen(page)).toBe(true);
   await page.keyboard.press("Enter");
-  await page.waitForTimeout(900);
-  expect(Math.abs((await centerYear(page)) - (750 + 1258) / 2)).toBeLessThan(3);
+  // A fly-to is an animation; wait for where it lands, not for a clock. The
+  // Linux WebKit runner is slower than a Mac and a fixed wait failed there.
+  await expect
+    .poll(async () => Math.abs((await centerYear(page)) - (750 + 1258) / 2), {
+      timeout: 10_000,
+    })
+    .toBeLessThan(3);
   await expect(abbasid).toHaveAttribute("aria-current", "true");
   expect(await eras.locator("[aria-current=true]").count()).toBe(1);
 });
@@ -254,8 +259,10 @@ test("Space on a cluster opens it", async ({ page }, info) => {
   ).toMatch(/^cluster:/);
   const z0 = await ppyOf(page);
   await page.keyboard.press(" ");
-  await page.waitForTimeout(900);
-  expect(await ppyOf(page)).toBeGreaterThan(z0 * 2);
+  // the cluster zoom is a fly-to; wait for the zoom to arrive
+  await expect
+    .poll(() => ppyOf(page), { timeout: 10_000 })
+    .toBeGreaterThan(z0 * 2);
 });
 
 test("the help button is on the phone bar", async ({ page }, info) => {
