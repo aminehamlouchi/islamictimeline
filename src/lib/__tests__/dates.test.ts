@@ -4,6 +4,7 @@ import {
   ceYearForHijriYearStart,
   formatAHPart,
   formatCEPart,
+  formatCESpan,
   formatSpanDual,
   gregorianToJdn,
   hijriYearForCE,
@@ -150,5 +151,22 @@ describe("formatting honors precision and Hijri policy", () => {
         hijri: { year: 656, source: "attested" },
       }),
     ).toBe(656);
+  });
+});
+
+describe("the era word sits only after a Common Era year", () => {
+  const d = (year: number, precision: "exact" | "year" | "circa" = "year") =>
+    ({ year, precision }) as unknown as Parameters<typeof formatCESpan>[0];
+  it("never writes CE after BCE", () => {
+    expect(formatCESpan(d(-551), d(-479))).toBe("551 BCE – 479 BCE");
+    expect(formatCESpan(d(-3200, "circa"))).toBe("c. 3200 BCE");
+    expect(formatSpanDual(d(-551), d(-479))).not.toMatch(/BCE CE/);
+  });
+  it("crosses the era boundary in one span", () => {
+    expect(formatCESpan(d(-27), d(476))).toBe("27 BCE – 476 CE");
+  });
+  it("treats present as a word, not a year", () => {
+    expect(formatCESpan(d(1935, "circa"), undefined, true)).toBe("c. 1935 CE – present");
+    expect(formatCESpan(d(-2560, "circa"), undefined, true)).toBe("c. 2560 BCE – present");
   });
 });

@@ -179,6 +179,27 @@ export function isAHCalculated(d: HDate): boolean {
   return !d.hijri || d.hijri.source === "calculated";
 }
 
+/** Appends the era word only where it belongs: after a Common Era year. */
+function withEra(cePart: string): string {
+  return /BCE\??$/.test(cePart) ? cePart : `${cePart} CE`;
+}
+
+/**
+ * The Common Era span alone: "1263 – 1328 CE", "551 BCE – 479 BCE",
+ * "27 BCE – 476 CE", "c. 1935 CE – present", "c. 2560 BCE – present".
+ * A BCE year never takes a CE suffix, and "present" is not a year.
+ */
+export function formatCESpan(
+  start: HDate,
+  end?: HDate,
+  ongoing?: boolean,
+): string {
+  const ceStart = formatCEPart(start);
+  if (ongoing) return `${withEra(ceStart)} – present`;
+  if (!end) return withEra(ceStart);
+  return `${ceStart} – ${withEra(formatCEPart(end))}`;
+}
+
 /**
  * Compact dual-calendar span, e.g.
  * "1263 – 1328 CE · 661 – 728 AH"
@@ -189,9 +210,7 @@ export function formatSpanDual(
   end?: HDate,
   ongoing?: boolean,
 ): string {
-  const ceStart = formatCEPart(start);
-  const ceEnd = ongoing ? "present" : end ? formatCEPart(end) : null;
-  const ce = ceEnd ? `${ceStart} – ${ceEnd} CE` : `${ceStart} CE`;
+  const ce = formatCESpan(start, end, ongoing);
 
   const ahS = ahYearOf(start);
   const ahE = ongoing ? null : end ? ahYearOf(end) : null;
@@ -251,5 +270,5 @@ export function formatFullDate(d: HDate): string {
       : `${GREG_MONTHS[d.month - 1]} ${formatYearCE(d.year)}`;
   }
   const ah = formatAHPart(d);
-  return ah ? `${ce} CE · ${ah}` : `${ce} CE`;
+  return ah ? `${withEra(ce)} · ${ah}` : withEra(ce);
 }

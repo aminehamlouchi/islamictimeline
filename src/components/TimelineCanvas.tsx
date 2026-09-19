@@ -805,7 +805,7 @@ export default function TimelineCanvas() {
                 y={y + 4}
                 className="tl-label strong"
                 style={{
-                  fill: "var(--today)",
+                  fill: "var(--gold-ink)",
                   fontSize: 12,
                   letterSpacing: "0.16em",
                 }}

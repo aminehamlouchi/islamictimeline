@@ -15,7 +15,7 @@ import Emblem from "@/components/Emblem";
 import RecordText from "@/components/RecordText";
 import { getAllRecords, getRecord, relationsOf } from "@/lib/data";
 import {
-  formatCEPart,
+  formatCESpan,
   formatFullDate,
   formatSpanDual,
   precisionBadge,
@@ -39,9 +39,7 @@ const pageUrl = (rec: TimelineRecord) => `${SITE_URL}/r/${rec.id}/`;
 /** The Common Era span alone, "c. 780 – 850 CE" or "1935 CE – present", for the title. */
 function ceSpan(rec: TimelineRecord): string | null {
   if (rec.start.precision === "unknown") return null;
-  const start = formatCEPart(rec.start);
-  if (rec.ongoing) return `${start} CE – present`;
-  return rec.end ? `${start} – ${formatCEPart(rec.end)} CE` : `${start} CE`;
+  return formatCESpan(rec.start, rec.end, rec.ongoing);
 }
 
 export async function generateMetadata({

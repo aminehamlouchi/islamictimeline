@@ -291,4 +291,16 @@ describe("tokens contrast", () => {
     expect(textUses).toEqual([]);
     expect(swatches).toBe(2);
   });
+
+  it("never paints text with --today, which is the brand gold under another name", () => {
+    const dir = resolve("src/components");
+    const hits: string[] = [];
+    for (const f of readdirSync(dir)) {
+      if (!f.endsWith(".tsx")) continue;
+      const src = readFileSync(join(dir, f), "utf8");
+      for (const m of src.matchAll(/<text[^>]*?fill:\s*"var\(--today\)"/gs))
+        hits.push(`${f}: ${m[0].slice(0, 60).replace(/\s+/g, " ")}`);
+    }
+    expect(hits).toEqual([]);
+  });
 });
