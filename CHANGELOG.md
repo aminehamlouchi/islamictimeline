@@ -4,6 +4,15 @@ Data changes are logged here so any claim on the site can be audited against
 the commit that introduced it. Code changes are summarized; the git history is
 the full record.
 
+## 2026-09-19
+
+### Site
+
+- Moved to `https://aminehamlouchi.com/islamictimeline/` and renamed the
+  repository to `islamictimeline` to match. The old `/timeline/` address forwards
+  every path and query string to the new one, so shared views still open.
+- No data changes.
+
 ## 2026-09-18
 
 ### Data
