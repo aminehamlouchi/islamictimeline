@@ -33,13 +33,15 @@ import {
   type ResolvedCluster,
   type ResolvedItem,
 } from "@/lib/layout";
-import { NOW_YEAR, relationsOf } from "@/lib/data";
+import { getRecord, NOW_YEAR, relationsOf } from "@/lib/data";
 import { BANDS, ceTicks, clampPpy, LINEAR_FLOOR, TimeScale } from "@/lib/scale";
 import { ceYearForHijriYearStart } from "@/lib/dates";
 import { ERAS } from "@/lib/eras";
 import { CATEGORY_COLOR, schoolCategory } from "@/lib/schools";
 import { useApp } from "@/lib/store";
 import { formatSpanDual } from "@/lib/dates";
+import { KIND_LABEL } from "@/lib/labels";
+import type { TimelineRecord } from "@/lib/types";
 
 const LANE_COLOR: Record<string, string> = {
   sirah: "var(--gold)",
@@ -60,6 +62,19 @@ const EMPTY_LAYOUT = { items: [], clusters: [], packedAtPpy: 1 };
 // on request.
 const CANVAS_INSTRUCTIONS =
   "Vertical timeline of Islamic history. Today at top; scroll down to travel into the past. Use arrow keys to pan, plus and minus to zoom, Home for today.";
+
+/** A record whose start or end the sources disagree on. */
+function isDisputed(r: TimelineRecord): boolean {
+  return r.start.precision === "disputed" || r.end?.precision === "disputed";
+}
+
+/** The record id of the marker under an event target, if it is over one. */
+function markerIdAt(t: EventTarget | null): string | null {
+  return (
+    (t as Element | null)?.closest?.(".tl-item")?.getAttribute("data-id") ??
+    null
+  );
+}
 
 function barWidth(imp: number): number {
   return imp >= 5 ? 8 : imp === 4 ? 6.5 : imp === 3 ? 5 : 4;
@@ -84,6 +99,7 @@ export default function TimelineCanvas() {
   const { setPpy, setView, select, cancelFly } = useApp.getState();
 
   const [hoverY, setHoverY] = useState<number | null>(null);
+  const [hoverId, setHoverId] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const reducedMotion = useMemo(
     () =>
@@ -322,6 +338,7 @@ export default function TimelineCanvas() {
       // The effect above publishes the year under the cursor from the current
       // render's scale, so hover, scroll and zoom stay in sync.
       setHoverY(e.clientY);
+      setHoverId(markerIdAt(e.target));
     }
   };
   const endPointer = (e: React.PointerEvent) => {
@@ -467,6 +484,7 @@ export default function TimelineCanvas() {
       onPointerCancel={endPointer}
       onPointerLeave={(e) => {
         setHoverY(null); // the effect clears hoverYear in sync
+        setHoverId(null);
         endPointer(e);
       }}
       onDoubleClick={onDoubleClick}
@@ -725,11 +743,15 @@ export default function TimelineCanvas() {
             {(() => {
               const yr = Math.round(lensYear);
               const inCap = yr < LINEAR_FLOOR;
-              const label = inCap
+              const year = inCap
                 ? "undated"
                 : yr < 0
                   ? `${-yr} BCE`
                   : `${yr} CE`;
+              // Over a marker whose dating the sources contest, say so.
+              const over = hoverId ? getRecord(hoverId) : undefined;
+              const label =
+                over && isDisputed(over) ? `${year}, disputed` : year;
               const w = Math.max(label.length * 7.6 + 18, 58);
               const lx = cx + 16;
               return (
@@ -869,7 +891,9 @@ const Marker = memo(function Marker({
   const maxLen = compact ? (it.side < 0 ? 16 : 18) : 34;
   const label =
     r.name.length > maxLen ? r.name.slice(0, maxLen - 1) + "…" : r.name;
-  const aria = `${r.name}, ${formatSpanDual(r.start, r.end, r.ongoing)}`;
+  const aria = `${r.name}, ${formatSpanDual(r.start, r.end, r.ongoing)}, ${
+    KIND_LABEL[r.kind] ?? r.kind
+  }${isDisputed(r) ? ", disputed" : ""}`;
 
   const common = {
     className: "tl-item",

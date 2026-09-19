@@ -4,13 +4,15 @@
  * Search palette (⌘K), filters, legend, onboarding, help & library.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getRecord } from "@/lib/data";
 import { search, type SearchResult } from "@/lib/search";
 import { useApp } from "@/lib/store";
 import type { LaneId } from "@/lib/types";
 
 /* ------------------------------- search ------------------------------- */
+
+const optionId = (i: number) => `search-option-${i}`;
 
 export function SearchPalette() {
   const open = useApp((s) => s.searchOpen);
@@ -27,6 +29,14 @@ export function SearchPalette() {
       setTimeout(() => inputRef.current?.focus(), 30);
     }
   }, [open]);
+
+  // The highlight follows the arrow keys; keep it inside the scrolling list.
+  useEffect(() => {
+    if (!open) return;
+    document
+      .getElementById(optionId(active))
+      ?.scrollIntoView({ block: "nearest" });
+  }, [open, active]);
 
   if (!open) return null;
 
@@ -82,7 +92,15 @@ export function SearchPalette() {
           aria-expanded={results.length > 0}
           aria-controls="search-results"
           aria-autocomplete="list"
+          aria-activedescendant={
+            results.length > 0 ? optionId(active) : undefined
+          }
         />
+        <p role="status" className="sr-only">
+          {results.length > 0
+            ? `${results.length} ${results.length === 1 ? "result" : "results"}`
+            : ""}
+        </p>
         {results.length > 0 && (
           <ul
             id="search-results"
@@ -93,50 +111,51 @@ export function SearchPalette() {
             {results.map((r, i) => (
               <li
                 key={`${r.kind}-${r.record?.id ?? r.year}-${i}`}
+                id={optionId(i)}
                 role="option"
                 aria-selected={i === active}
+                className="flex cursor-pointer items-baseline justify-between gap-3 px-4 py-2 text-left"
+                style={{
+                  background:
+                    i === active
+                      ? "color-mix(in srgb, var(--gold) 10%, transparent)"
+                      : "transparent",
+                }}
+                onMouseEnter={() => setActive(i)}
+                // The input keeps focus, so the keyboard keeps the combobox.
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => go(r)}
               >
-                <button
-                  className="flex w-full items-baseline justify-between gap-3 px-4 py-2 text-left"
-                  style={{
-                    background:
-                      i === active
-                        ? "color-mix(in srgb, var(--gold) 10%, transparent)"
-                        : "transparent",
-                  }}
-                  onMouseEnter={() => setActive(i)}
-                  onClick={() => go(r)}
+                <span
+                  className="text-[13.5px]"
+                  style={{ color: "var(--ink)" }}
                 >
-                  <span
-                    className="text-[13.5px]"
-                    style={{ color: "var(--ink)" }}
-                  >
-                    {r.kind === "year" ? "⌖ " : ""}
-                    {r.label}
-                    {r.record?.arabic && (
-                      <span
-                        className="font-arabic ml-2 text-[13px]"
-                        dir="rtl"
-                        lang="ar"
-                        style={{ color: "var(--ink-faint)" }}
-                      >
-                        {r.record.arabic}
-                      </span>
-                    )}
-                  </span>
-                  <span
-                    className="shrink-0 text-[11px]"
-                    style={{ color: "var(--ink-faint)" }}
-                  >
-                    {r.sublabel}
-                  </span>
-                </button>
+                  {r.kind === "year" ? "⌖ " : ""}
+                  {r.label}
+                  {r.record?.arabic && (
+                    <span
+                      className="font-arabic ml-2 text-[13px]"
+                      dir="rtl"
+                      lang="ar"
+                      style={{ color: "var(--ink-faint)" }}
+                    >
+                      {r.record.arabic}
+                    </span>
+                  )}
+                </span>
+                <span
+                  className="shrink-0 text-[11px]"
+                  style={{ color: "var(--ink-faint)" }}
+                >
+                  {r.sublabel}
+                </span>
               </li>
             ))}
           </ul>
         )}
         {q && results.length === 0 && (
           <p
+            role="status"
             className="border-t px-4 py-3 text-[12.5px]"
             style={{
               color: "var(--ink-faint)",
@@ -422,9 +441,15 @@ const STEPS = [
   },
 ];
 
+/** True when an event target sits inside the instrument's canvas. */
+function onCanvas(t: EventTarget | null): boolean {
+  return !!(t as Element | null)?.closest?.(".tl-canvas");
+}
+
 export function Onboarding() {
   const step = useApp((s) => s.onboardStep);
   const setOnboardStep = useApp((s) => s.setOnboardStep);
+  const showing = step >= 0 && step < STEPS.length;
 
   // Step 0 is the default, so the panel is in the first painted frame. The
   // inline script in the document head has already hidden it for a returning
@@ -437,17 +462,57 @@ export function Onboarding() {
     }
   }, [setOnboardStep]);
 
-  if (step < 0 || step >= STEPS.length) return null;
-  const done = () => {
+  const done = useCallback(() => {
     try {
       localStorage.setItem("itl-onboarded", "1");
     } catch {}
     setOnboardStep(-1);
-  };
+  }, [setOnboardStep]);
+
+  // A tap or a click on the canvas is a visitor starting to explore, and it
+  // dismisses the card as Skip does. A drag or a pinch is not: the pointer has
+  // to come up within 6 px of where it went down, and a second finger cancels.
+  useEffect(() => {
+    if (!showing) return;
+    let down: { id: number; x: number; y: number } | null = null;
+    const onDown = (e: PointerEvent) => {
+      if (e.button !== 0 || !onCanvas(e.target)) {
+        down = null;
+        return;
+      }
+      // A different pointer arriving while one is held is a second finger.
+      // The same pointer again is a mouse that was released off the window.
+      down =
+        down !== null && down.id !== e.pointerId
+          ? null
+          : { id: e.pointerId, x: e.clientX, y: e.clientY };
+    };
+    const onUp = (e: PointerEvent) => {
+      if (down === null || e.pointerId !== down.id) return;
+      const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
+      down = null;
+      if (moved < 6) done();
+    };
+    const onCancel = () => {
+      down = null;
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    document.addEventListener("pointerup", onUp, true);
+    document.addEventListener("pointercancel", onCancel, true);
+    return () => {
+      document.removeEventListener("pointerdown", onDown, true);
+      document.removeEventListener("pointerup", onUp, true);
+      document.removeEventListener("pointercancel", onCancel, true);
+    };
+  }, [showing, done]);
+
+  if (!showing) return null;
   const s = STEPS[step];
   return (
     <div
-      className="tl-intro fixed inset-x-0 bottom-16 z-50 flex justify-center px-4"
+      // Below the sm breakpoint the card sits above the zoom control it
+      // describes in step four, instead of over it.
+      className="tl-intro fixed inset-x-0 bottom-44 z-50 flex justify-center px-4 sm:bottom-16"
       role="dialog"
       aria-label="Introduction"
     >
@@ -497,6 +562,7 @@ export function Onboarding() {
 export function HelpSheet() {
   const open = useApp((s) => s.helpOpen);
   const setHelpOpen = useApp((s) => s.setHelpOpen);
+  const setLegendOpen = useApp((s) => s.setLegendOpen);
   if (!open) return null;
   const rows: [string, string][] = [
     ["↓ / ↑ · scroll · drag", "travel through time"],
@@ -547,6 +613,29 @@ export function HelpSheet() {
             ))}
           </tbody>
         </table>
+        <h3
+          className="mb-1.5 mt-3 text-[11px] font-semibold uppercase tracking-[0.14em]"
+          style={{ color: "var(--ink-faint)" }}
+        >
+          More
+        </h3>
+        <div className="flex flex-wrap gap-1.5">
+          <a className="btn" href="./methodology/">
+            Methodology and sources
+          </a>
+          <a className="btn" href="./records/">
+            Index
+          </a>
+          <button
+            className="btn"
+            onClick={() => {
+              setHelpOpen(false);
+              setLegendOpen(true);
+            }}
+          >
+            Legend
+          </button>
+        </div>
       </div>
     </div>
   );

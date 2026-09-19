@@ -147,6 +147,32 @@ test("search finds records by name, Arabic and date", async ({ page }) => {
   }
 });
 
+test("arrow keys move the search highlight and aria-activedescendant follows", async ({
+  page,
+}) => {
+  await page.keyboard.press("/");
+  const box = page.getByRole("combobox");
+  await box.fill("Ibn");
+  await page.waitForTimeout(350);
+  const options = page.getByRole("option");
+  await expect(options.first()).toBeVisible();
+  expect(await options.count()).toBeGreaterThan(1);
+  const first = await options.first().getAttribute("id");
+  expect(first).toBeTruthy();
+  await expect(box).toHaveAttribute("aria-activedescendant", first!);
+  await page.keyboard.press("ArrowDown");
+  const second = await options.nth(1).getAttribute("id");
+  expect(second).not.toBe(first);
+  await expect(box).toHaveAttribute("aria-activedescendant", second!);
+  await expect(options.nth(1)).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("ArrowUp");
+  await expect(box).toHaveAttribute("aria-activedescendant", first!);
+  // The option is the clickable element itself, with nothing nested inside.
+  expect(await options.first().locator("button, a").count()).toBe(0);
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("search-palette")).toBeHidden();
+});
+
 test("atlas, legend, filters and help open and close", async ({ page }) => {
   for (const [key, testId] of [
     ["m", "map-panel"],
@@ -165,6 +191,44 @@ test("atlas, legend, filters and help open and close", async ({ page }) => {
   await page.keyboard.press("?");
   await expect(page.getByRole("dialog", { name: "Help" })).toBeVisible();
   await page.keyboard.press("Escape");
+});
+
+test("the help sheet routes to the methodology, the index and the legend", async ({
+  page,
+}) => {
+  await page.keyboard.press("?");
+  const help = page.getByRole("dialog", { name: "Help" });
+  await expect(help).toBeVisible();
+  await expect(help.getByRole("link", { name: "Index", exact: true })).toHaveAttribute(
+    "href",
+    /records\/$/,
+  );
+  await help.getByRole("button", { name: "Legend", exact: true }).click();
+  await expect(help).toBeHidden();
+  await expect(page.getByTestId("legend")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("legend")).toBeHidden();
+  await page.keyboard.press("?");
+  await help.getByRole("link", { name: "Methodology and sources" }).click();
+  await page.waitForURL(/\/methodology\/$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+});
+
+test("markers name their kind and say when a date is disputed", async ({ page }, info) => {
+  // al-Qadisiyya: start precision 'disputed', prominence 5, drawn at every zoom.
+  await page.goto("./?y=636&z=46", { waitUntil: "load" });
+  await mounted(page);
+  const marker = page.locator('[data-id="battle-of-qadisiyya"]');
+  await expect(marker).toHaveAttribute("aria-label", /^Battle of al-Qādisiyya, .+ CE .*Battle, disputed$/);
+  // A person with an attested span and no dispute carries the kind alone.
+  const person = page.locator("[data-id]:not([data-id^=cluster])").filter({
+    has: page.locator("xpath=self::*[contains(@aria-label, ', Person')]"),
+  });
+  expect(await person.count()).toBeGreaterThan(0);
+  if (isPhone(info.project.name)) return; // no hover on touch
+  await marker.hover({ force: true });
+  await page.waitForTimeout(350);
+  await expect(page.locator("svg text", { hasText: /disputed/ }).first()).toBeVisible();
 });
 
 test("compare tray fills from the record view and opens", async ({ page }) => {
@@ -257,14 +321,61 @@ test("the hover lens reveals quieter records", async ({ page }, info) => {
   expect(await page.evaluate(() => (window as unknown as { __err?: string }).__err ?? "")).toBe("");
 });
 
-test("the first-visit introduction appears and can be skipped", async ({ browser, baseURL }) => {
+test("the first-visit introduction appears and can be skipped", async (
+  { browser, baseURL },
+  info,
+) => {
   const ctx = await browser.newContext({ baseURL });
   const fresh = await ctx.newPage();
   await fresh.goto("./", { waitUntil: "load" });
   const intro = fresh.getByTestId("onboarding");
   await expect(intro).toBeVisible();
+  if (isPhone(info.project.name)) {
+    // Step four points at the zoom presets, so the card must not cover them.
+    const zoom = fresh.getByRole("group", { name: "Zoom" });
+    await expect(zoom).toBeVisible();
+    const a = (await intro.boundingBox())!;
+    const b = (await zoom.boundingBox())!;
+    const apart =
+      a.x + a.width <= b.x ||
+      b.x + b.width <= a.x ||
+      a.y + a.height <= b.y ||
+      b.y + b.height <= a.y;
+    expect(apart, `intro ${JSON.stringify(a)} covers the zoom control ${JSON.stringify(b)}`).toBe(true);
+  }
   await intro.getByRole("button", { name: "Skip" }).click();
   await expect(intro).toBeHidden();
+  await ctx.close();
+});
+
+test("a tap on the canvas dismisses the introduction, a drag does not", async (
+  { browser, baseURL },
+  info,
+) => {
+  const ctx = await browser.newContext({ baseURL });
+  const fresh = await ctx.newPage();
+  await fresh.goto("./", { waitUntil: "load" });
+  await mounted(fresh);
+  const intro = fresh.getByTestId("onboarding");
+  await expect(intro).toBeVisible();
+  // Open canvas just above the card and below the year pill: left of the line
+  // on a phone, right of it on a desktop, where the atlas holds the left.
+  const box = (await intro.boundingBox())!;
+  const phone = isPhone(info.project.name);
+  const x = Math.round(fresh.viewportSize()!.width * (phone ? 0.2 : 0.8));
+  const y = Math.round(Math.max(130, box.y - 40));
+  // Travelling is not a tap: the card stays.
+  await fresh.mouse.move(x, y);
+  await fresh.mouse.down();
+  await fresh.mouse.move(x, y - 120, { steps: 8 });
+  await fresh.mouse.up();
+  await fresh.waitForTimeout(200);
+  await expect(intro).toBeVisible();
+  const canvasEl = fresh.getByTestId("timeline-canvas");
+  if (phone) await canvasEl.tap({ position: { x, y } });
+  else await canvasEl.click({ position: { x, y } });
+  await expect(intro).toBeHidden();
+  expect(await fresh.evaluate(() => localStorage.getItem("itl-onboarded"))).toBe("1");
   await ctx.close();
 });
 
