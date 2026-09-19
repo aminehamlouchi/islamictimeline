@@ -9,9 +9,12 @@ on:
 permissions:
   contents: read
 
+# Pushes to main share one queue so deployments land in order. A pull request
+# runs in its own group, keyed on its ref, so it never waits behind a
+# deployment, and a newer push to the same pull request cancels the older run.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   NEXT_PUBLIC_BASE_PATH: /islamictimeline
@@ -36,12 +39,48 @@ jobs:
         run: npm test
       - name: Production build
         run: npm run build
+      - name: Size budget
+        run: node scripts/size-budget.mjs
       - name: Internal link check
         run: node scripts/link-check.mjs
       - name: Install browsers
         run: npx playwright install --with-deps chromium webkit
+      - name: Lighthouse mobile scores for /
+        # A printed score, not a gate: shared runners are too noisy for a
+        # Performance threshold. The four numbers are in this step's log.
+        continue-on-error: true
+        run: |
+          node scripts/serve-out.mjs &
+          SERVER=$!
+          trap 'kill $SERVER' EXIT
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:4321/islamictimeline/ > /dev/null && break
+            sleep 1
+          done
+          npx --yes lighthouse@12 http://127.0.0.1:4321/islamictimeline/ \
+            --form-factor=mobile \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --output=json --output-path="$RUNNER_TEMP/lighthouse.json" \
+            --chrome-flags="--headless=new --no-sandbox" \
+            --quiet
+          node -e '
+            const c = require(process.env.RUNNER_TEMP + "/lighthouse.json").categories;
+            for (const k of ["performance", "accessibility", "best-practices", "seo"])
+              console.log(c[k].title.padEnd(16) + Math.round(c[k].score * 100));
+          '
       - name: Path independence and interaction smoke
+        id: e2e
         run: npx playwright test
+      - name: Keep the traces and screenshots of the failed run
+        if: failure() && steps.e2e.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-${{ github.run_id }}
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Upload Pages artifact
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3

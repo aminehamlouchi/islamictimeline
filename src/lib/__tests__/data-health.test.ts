@@ -3,11 +3,31 @@
  * These are the things a reader would catch us on: a record with no citation,
  * a span that ends before it starts, a Hijri year that disagrees with its
  * Gregorian pair, a duplicate id, or an AH date before the hijra.
+ *
+ * The baseline is the 392 ids the site launched with, frozen in
+ * src/data/baseline-ids.json. A baseline record may be edited but never
+ * dropped. A record outside the baseline is new, and a new record needs two
+ * distinct citations and a CHANGELOG line (BRIEF section 5.3).
  */
 
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { allRecords } from "@/data/records";
+import baselineIds from "@/data/baseline-ids.json";
 import { ceYearForHijriYearStart } from "../dates";
+
+const ROOT = resolve(__dirname, "../../..");
+
+/** CHANGELOG.md plus any entry waiting in changelog.d/ to be folded into it. */
+function changelogText(): string {
+  const parts = [readFileSync(join(ROOT, "CHANGELOG.md"), "utf8")];
+  const pending = join(ROOT, "changelog.d");
+  if (existsSync(pending))
+    for (const name of readdirSync(pending))
+      if (name.endsWith(".md")) parts.push(readFileSync(join(pending, name), "utf8"));
+  return parts.join("\n");
+}
 
 describe("data health", () => {
   it("reports and enforces the numbers", () => {
@@ -41,8 +61,42 @@ describe("data health", () => {
     expect(problems).toEqual([]);
   });
 
-  it("still holds every one of the 392 original records", () => {
-    expect(allRecords.length).toBeGreaterThanOrEqual(392);
-    console.log(`record count: ${allRecords.length} (original baseline 392)`);
+  it("still resolves every one of the 392 baseline ids", () => {
+    const ids = new Set(allRecords.map((r) => r.id));
+    const missing = baselineIds.filter((id) => !ids.has(id));
+    console.log(
+      `record count: ${allRecords.length} (baseline ${baselineIds.length}, ` +
+        `${missing.length} baseline ids missing)`,
+    );
+    expect(baselineIds.length).toBe(392);
+    expect(new Set(baselineIds).size).toBe(baselineIds.length);
+    if (missing.length)
+      console.error(missing.map((id) => `  baseline id missing: ${id}`).join("\n"));
+    expect(missing).toEqual([]);
+  });
+
+  it("holds every record added since the baseline to two citations and a CHANGELOG line", () => {
+    const baseline = new Set(baselineIds);
+    const added = allRecords.filter((r) => !baseline.has(r.id));
+    const changelog = changelogText();
+    const problems: string[] = [];
+
+    for (const r of added) {
+      const distinct = new Set(
+        r.citations.map((c) => `${c.source}|${c.detail ?? ""}`),
+      );
+      if (distinct.size < 2)
+        problems.push(
+          `${r.id}: ${distinct.size} distinct citation(s); a record added after the baseline needs two`,
+        );
+      if (!changelog.includes(r.id))
+        problems.push(`${r.id}: no line in CHANGELOG.md or changelog.d/`);
+    }
+
+    console.log(
+      `records added since the baseline: ${added.length}, ${problems.length} problems`,
+    );
+    if (problems.length) console.error(problems.map((p) => `  ${p}`).join("\n"));
+    expect(problems).toEqual([]);
   });
 });
