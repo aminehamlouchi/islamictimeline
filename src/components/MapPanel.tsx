@@ -203,7 +203,7 @@ export default function MapPanel() {
         <path
           d={LAND_PATH}
           fill="var(--bg-raised)"
-          stroke="var(--ink-faint)"
+          stroke="var(--rule-faint)"
           strokeWidth={0.6}
           opacity={0.95}
         />

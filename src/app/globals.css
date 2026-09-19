@@ -11,8 +11,12 @@
   --bg-sunken: #eae1cd;
   --ink: #2b2620;
   --ink-soft: #6b6255;
-  --ink-faint: #99907f;
+  /* the faint tier clears 4.5:1 on every surface it is painted on, the
+     sunken map ground included; --rule-faint keeps the value it had for
+     hairlines, so the identity's lines stay as light as they were */
+  --ink-faint: #68604f;
   --rule: #d8cdb6;
+  --rule-faint: #99907f;
   --line: #3a352c;
   --gold: #a07d1c;
   /* the same gold, darkened only where it carries text, so it clears 4.5:1 */
@@ -47,8 +51,9 @@
   --bg-sunken: #100e0a;
   --ink: #e9e1cf;
   --ink-soft: #a89e8a;
-  --ink-faint: #7a7160;
+  --ink-faint: #948a77;
   --rule: #3a352a;
+  --rule-faint: #7a7160;
   --line: #d8cdb2;
   --gold: #d3b25c;
   --gold-ink: #e3c877;
@@ -79,11 +84,12 @@
     --bg-sunken: #100e0a;
     --ink: #e9e1cf;
     --ink-soft: #a89e8a;
-    --ink-faint: #7a7160;
+    --ink-faint: #948a77;
     --rule: #3a352a;
+    --rule-faint: #7a7160;
     --line: #d8cdb2;
     --gold: #d3b25c;
-  --gold-ink: #e3c877;
+    --gold-ink: #e3c877;
     --gold-soft: #93803f;
     --lapis: #7ea8d8;
     --lapis-soft: #4a6d94;
@@ -109,8 +115,9 @@
   --bg-sunken: #100e0a;
   --ink: #e9e1cf;
   --ink-soft: #a89e8a;
-  --ink-faint: #7a7160;
+  --ink-faint: #948a77;
   --rule: #3a352a;
+  --rule-faint: #7a7160;
   --line: #d8cdb2;
   --gold: #d3b25c;
   --gold-ink: #e3c877;
@@ -205,7 +212,7 @@ body {
   white-space: nowrap;
 }
 .btn:hover {
-  border-color: var(--ink-faint);
+  border-color: var(--rule-faint);
 }
 .btn[aria-pressed="true"],
 .btn.active {
@@ -232,7 +239,7 @@ body {
     color 120ms ease;
 }
 .chip:hover {
-  border-color: var(--ink-faint);
+  border-color: var(--rule-faint);
   color: var(--ink);
 }
 
@@ -473,6 +480,7 @@ html[data-onboarded] .tl-intro {
     --ink-soft: #000;
     --ink-faint: #000;
     --rule: #000;
+    --rule-faint: #000;
     --gold: #000;
     --brick: #000;
     --panel-border: #000;

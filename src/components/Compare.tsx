@@ -46,7 +46,7 @@ export function CompareTray() {
       })}
       <button
         className="btn"
-        style={{ borderColor: "var(--gold)", color: "var(--gold)" }}
+        style={{ borderColor: "var(--gold)", color: "var(--gold-ink)" }}
         onClick={() => setCompareOpen(true)}
         disabled={compareIds.length < 2}
       >

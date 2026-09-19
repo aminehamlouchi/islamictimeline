@@ -73,7 +73,7 @@ export function TopBar() {
       >
         <button
           className="btn"
-          style={{ borderColor: "var(--gold)", color: "var(--gold)" }}
+          style={{ borderColor: "var(--gold)", color: "var(--gold-ink)" }}
           onClick={() => setSupportOpen(true)}
           data-testid="support-button"
           aria-label="Support this project"
@@ -217,12 +217,12 @@ export function MobileYearPill() {
       >
         <span
           className="font-display text-[15px] font-semibold"
-          style={{ color: band ? "var(--gold)" : "var(--ink)" }}
+          style={{ color: band ? "var(--gold-ink)" : "var(--ink)" }}
         >
           {label}
         </span>
         {ah !== null && !band && (
-          <span className="ml-1.5 text-[11px]" style={{ color: "var(--gold)" }}>
+          <span className="ml-1.5 text-[11px]" style={{ color: "var(--gold-ink)" }}>
             ≈ {ah} AH
           </span>
         )}
@@ -309,7 +309,7 @@ export function YearIndicator() {
               <>
                 <div
                   className="font-display text-[21px] font-semibold leading-tight"
-                  style={{ color: "var(--gold)" }}
+                  style={{ color: "var(--gold-ink)" }}
                 >
                   Earliest prophets
                 </div>
@@ -347,7 +347,7 @@ export function YearIndicator() {
               {ah !== null && (
                 <div
                   className="mt-1 text-[13px]"
-                  style={{ color: "var(--gold)" }}
+                  style={{ color: "var(--gold-ink)" }}
                 >
                   ≈ {ah} AH{" "}
                   <span style={{ color: "var(--ink-faint)" }}>(calc.)</span>

@@ -185,7 +185,7 @@ export default function DetailPanel() {
             )}
             <div
               className="mt-1 text-[13px]"
-              style={{ color: "var(--gold)" }}
+              style={{ color: "var(--gold-ink)" }}
               data-testid="record-dates"
             >
               {shownDates}
