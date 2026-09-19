@@ -38,6 +38,10 @@ jobs:
         run: npm run build
       - name: Internal link check
         run: node scripts/link-check.mjs
+      - name: Export size
+        run: |
+          du -sh out
+          echo "record pages: $(find out/r -name index.html | wc -l | tr -d ' ')"
       - name: Install browsers
         run: npx playwright install --with-deps chromium webkit
       - name: Path independence and interaction smoke
