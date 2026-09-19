@@ -1,5 +1,5 @@
 /**
- * Serves ./out under /timeline/ with gzip, the way GitHub Pages does, so the
+ * Serves ./out under /islamictimeline/ with gzip, the way GitHub Pages does, so the
  * local Playwright and Lighthouse runs measure something close to production.
  */
 import { createReadStream, statSync, existsSync } from "node:fs";
@@ -9,7 +9,7 @@ import { extname, join, normalize } from "node:path";
 
 const ROOT = new URL("../out/", import.meta.url).pathname;
 const PORT = Number(process.env.PORT ?? 4321);
-const BASE = "/timeline";
+const BASE = "/islamictimeline";
 const TYPES = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",

@@ -5,7 +5,7 @@ import { defineConfig, devices } from "@playwright/test";
  * site (set E2E_BASE_URL). Chromium and WebKit both matter: a large share of
  * visitors arrive on iPhones.
  */
-const baseURL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:4321/timeline/";
+const baseURL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:4321/islamictimeline/";
 
 export default defineConfig({
   testDir: "e2e",
@@ -35,7 +35,7 @@ export default defineConfig({
     ? undefined
     : {
         command: "node scripts/serve-out.mjs",
-        url: "http://127.0.0.1:4321/timeline/",
+        url: "http://127.0.0.1:4321/islamictimeline/",
         reuseExistingServer: !process.env.CI,
         timeout: 60_000,
       },

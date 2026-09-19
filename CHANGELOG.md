@@ -14,7 +14,7 @@ records, all 392 carrying at least one citation** (verified by
 
 ### Site
 
-- Moved the canonical home to `https://aminehamlouchi.com/timeline/`. Canonical,
+- Moved the canonical home to `https://aminehamlouchi.com/islamictimeline/`. Canonical,
   `og:url`, `og:image`, and favicon URLs are now absolute on that host, built
   from `NEXT_PUBLIC_SITE_URL`. The previous default pointed at a preview host.
 - Published from source by GitHub Actions on every push to `main`, replacing a

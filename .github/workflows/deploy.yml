@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  NEXT_PUBLIC_BASE_PATH: /timeline
-  NEXT_PUBLIC_SITE_URL: https://aminehamlouchi.com/timeline
+  NEXT_PUBLIC_BASE_PATH: /islamictimeline
+  NEXT_PUBLIC_SITE_URL: https://aminehamlouchi.com/islamictimeline
 
 jobs:
   verify:

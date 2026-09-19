@@ -110,13 +110,13 @@ Code license: see `LICENSE` if present; not yet chosen. Coastline: Natural Earth
 
 The site is built and published by GitHub Actions on every push to `main`
 (`.github/workflows/deploy.yml`) and served at
-<https://aminehamlouchi.com/timeline/>.
+<https://aminehamlouchi.com/islamictimeline/>.
 
 ```bash
-NEXT_PUBLIC_BASE_PATH=/timeline \
-NEXT_PUBLIC_SITE_URL=https://aminehamlouchi.com/timeline \
+NEXT_PUBLIC_BASE_PATH=/islamictimeline \
+NEXT_PUBLIC_SITE_URL=https://aminehamlouchi.com/islamictimeline \
 npm run build
-node scripts/serve-out.mjs   # http://127.0.0.1:4321/timeline/
+node scripts/serve-out.mjs   # http://127.0.0.1:4321/islamictimeline/
 npx playwright test          # path independence + interaction smoke
 ```
 

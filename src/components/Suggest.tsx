@@ -9,7 +9,7 @@
 import { useEffect, useState } from "react";
 import { useApp } from "@/lib/store";
 
-const REPO = "aminehamlouchi/timeline";
+const REPO = "aminehamlouchi/islamictimeline";
 const EMAIL = "aminehamlouchibusiness@gmail.com";
 
 const KINDS = [
