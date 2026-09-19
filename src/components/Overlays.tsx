@@ -522,7 +522,7 @@ export function Onboarding() {
       >
         <div
           className="mb-1 text-[10.5px] uppercase tracking-[0.18em]"
-          style={{ color: "var(--gold)" }}
+          style={{ color: "var(--gold-ink)" }}
         >
           {step + 1} / {STEPS.length}
         </div>
@@ -605,7 +605,7 @@ export function HelpSheet() {
           <tbody>
             {rows.map(([k, v]) => (
               <tr key={k}>
-                <td className="py-1 pr-3" style={{ color: "var(--gold)" }}>
+                <td className="py-1 pr-3" style={{ color: "var(--gold-ink)" }}>
                   {k}
                 </td>
                 <td style={{ color: "var(--ink-soft)" }}>{v}</td>

@@ -76,7 +76,7 @@ export default function SupportCard() {
           className="btn justify-center"
           style={{
             borderColor: "var(--gold)",
-            color: "var(--gold)",
+            color: "var(--gold-ink)",
             fontWeight: 600,
           }}
           href={SUPPORT.cashApp.url}

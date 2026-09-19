@@ -510,7 +510,7 @@ export default function TimelineCanvas() {
               y1="0"
               x2="0"
               y2="7"
-              stroke="var(--ink-faint)"
+              stroke="var(--rule-faint)"
               strokeWidth="0.75"
               opacity="0.5"
             />
@@ -527,7 +527,7 @@ export default function TimelineCanvas() {
               y1="0"
               x2="0"
               y2="4.5"
-              stroke="var(--ink-faint)"
+              stroke="var(--rule-faint)"
               strokeWidth="0.7"
               opacity="0.55"
             />
@@ -597,7 +597,7 @@ export default function TimelineCanvas() {
                 y1={y1}
                 x2={size.w}
                 y2={y1}
-                stroke="var(--ink-faint)"
+                stroke="var(--rule-faint)"
                 strokeWidth={1}
                 strokeDasharray="6 5"
                 opacity={0.7}
@@ -625,7 +625,7 @@ export default function TimelineCanvas() {
               y={Math.min(yEnd + 34, size.h - 14)}
               textAnchor="middle"
               className="tl-label display"
-              style={{ fontSize: 13, fill: "var(--gold)" }}
+              style={{ fontSize: 13, fill: "var(--gold-ink)" }}
             >
               ﴾ the line begins with Ādam عليه السلام, dates unknown, order
               preserved ﴿
@@ -677,7 +677,7 @@ export default function TimelineCanvas() {
                 x={cx + 9}
                 y={y + 12}
                 className="tl-label"
-                style={{ fontSize: 9.5, fill: "var(--gold)" }}
+                style={{ fontSize: 9.5, fill: "var(--gold-ink)" }}
               >
                 {m.ah} AH
               </text>
@@ -773,7 +773,7 @@ export default function TimelineCanvas() {
                     className="tl-label strong"
                     style={{
                       fontSize: 12,
-                      fill: "var(--gold)",
+                      fill: "var(--gold-ink)",
                       stroke: "none",
                     }}
                   >
@@ -1256,7 +1256,7 @@ const ClusterMarker = memo(function ClusterMarker({
       <circle
         r={r}
         fill="var(--bg-raised)"
-        stroke="var(--ink-faint)"
+        stroke="var(--rule-faint)"
         strokeWidth={1.2}
         strokeDasharray="3 2"
       />

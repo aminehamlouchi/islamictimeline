@@ -192,7 +192,7 @@ _Submitted via the in-app "Suggest a record" form._`;
             onClick={() => ok && setOpen(false)}
             style={{
               borderColor: "var(--gold)",
-              color: "var(--gold)",
+              color: "var(--gold-ink)",
               fontWeight: 600,
               ...(ok ? {} : { opacity: 0.5, pointerEvents: "none" }),
             }}
