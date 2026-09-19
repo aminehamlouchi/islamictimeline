@@ -365,3 +365,144 @@ body {
 html[data-onboarded] .tl-intro {
   display: none;
 }
+
+/* ------------------------------------------------------------------ */
+/* The record index (/records/): a plain list, readable, printable    */
+/* ------------------------------------------------------------------ */
+
+.records-index .ri-jump {
+  min-height: 24px;
+}
+.records-index .ri-jump-count {
+  margin-left: 2px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.records-index .ri-count {
+  margin-left: 10px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.records-index .ri-era {
+  scroll-margin-top: 16px;
+  /* Eleven sections and 392 rows: only the sections on screen are styled and
+     laid out, and the font swap does not relayout the whole document. The
+     sections stay in the accessibility tree and reachable by permalink; each
+     carries its own size estimate inline until it has been rendered once. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1200px;
+}
+.records-index .ri-list {
+  border-bottom: 1px solid var(--rule);
+}
+.records-index .ri-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 14px;
+  row-gap: 2px;
+  align-items: baseline;
+  padding: 7px 0;
+  border-top: 1px solid var(--rule);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.records-index .ri-name {
+  /* two pixels above and below take the 20 px line to the 24 px target size */
+  padding: 2px 0;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+}
+.records-index .ri-name:hover {
+  text-decoration-color: var(--gold);
+}
+.records-index .ri-arabic {
+  font-size: 16px;
+  color: var(--ink-soft);
+  text-align: right;
+}
+.records-index .ri-meta {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.records-index .ri-kind {
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.records-index .ri-date {
+  color: var(--ink-soft);
+}
+.records-index .ri-badge {
+  margin-left: 6px;
+  vertical-align: 1px;
+}
+.records-index .ri-alt {
+  margin-left: 6px;
+  color: var(--brick);
+}
+@media (min-width: 720px) {
+  .records-index .ri-row {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr) minmax(0, 1.6fr);
+  }
+  .records-index .ri-meta {
+    grid-column: 3;
+  }
+}
+
+/* On paper the index is a reading list: black ink, no underlines, no chrome.
+   The ink is set at the token, so it also reaches the inline heading colors
+   and holds whichever theme the device was in when it printed. */
+@media print {
+  @page {
+    margin: 18mm 16mm;
+  }
+  :root:has(.records-index) {
+    --bg: #fff;
+    --bg-raised: #fff;
+    --bg-sunken: #fff;
+    --ink: #000;
+    --ink-soft: #000;
+    --ink-faint: #000;
+    --rule: #000;
+    --gold: #000;
+    --brick: #000;
+    --panel-border: #000;
+  }
+  body:has(.records-index) {
+    background-image: none;
+  }
+  .records-index {
+    max-width: none;
+    padding: 0;
+  }
+  .records-index .ri-name,
+  .records-index a {
+    text-decoration: none;
+  }
+  .records-index .ri-nav,
+  .records-index .ri-chrome {
+    display: none;
+  }
+  .records-index .ri-era {
+    content-visibility: visible;
+  }
+  .records-index .ri-badge {
+    background: none;
+  }
+  .records-index h2,
+  .records-index h3 {
+    break-after: avoid;
+  }
+  .records-index .ri-row {
+    break-inside: avoid;
+  }
+}
