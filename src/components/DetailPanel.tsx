@@ -3,7 +3,8 @@
 /**
  * Focused view for a selected record: dual-calendar dates with precision
  * badges, summary, nested timeline, connections, computed context,
- * citations, bookmark, compare, map focus, share.
+ * citations, bookmark, compare, map focus, share, copy as a citation or as
+ * plain text, and a report link with the record's id filled in.
  */
 
 import { useEffect, useMemo, useState } from "react";
@@ -24,7 +25,15 @@ import { CATEGORY_LABEL, schoolCategory } from "@/lib/schools";
 import type { DetailEvent, RelationType, TimelineRecord } from "@/lib/types";
 import Emblem from "./Emblem";
 import { KIND_LABEL, REL_LABEL } from "@/lib/labels";
+import {
+  formatCitation,
+  formatRecordText,
+  instrumentLinkOf,
+} from "@/lib/citation";
+import { EMAIL, REPO } from "./Suggest";
 
+/** What the last copy button put on the clipboard, for the confirmation label. */
+type CopyKind = "link" | "citation" | "text";
 
 const REL_ORDER: RelationType[] = [
   "written_by",
@@ -70,7 +79,7 @@ export default function DetailPanel() {
   const compareIds = useApp((s) => s.compareIds);
   const setMapOpen = useApp((s) => s.setMapOpen);
   const [bookmarks, toggleBookmark] = useBookmarks();
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<CopyKind | null>(null);
 
   const rec = selectedId ? getRecord(selectedId) : undefined;
 
@@ -86,7 +95,7 @@ export default function DetailPanel() {
     return statesActiveIn(mid).slice(0, 4);
   }, [rec]);
 
-  useEffect(() => setCopied(false), [selectedId]);
+  useEffect(() => setCopied(null), [selectedId]);
 
   if (!rec) return null;
   const span = getSpan(rec);
@@ -96,15 +105,27 @@ export default function DetailPanel() {
     grouped.get(r.type)!.push(r);
   }
 
-  const share = async () => {
+  // The text is built before the first await so Safari still sees the click.
+  const copy = async (what: CopyKind, text: () => string) => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
+      await navigator.clipboard.writeText(text());
+      setCopied(what);
+      setTimeout(() => setCopied((cur) => (cur === what ? null : cur)), 1800);
     } catch {
       /* clipboard unavailable */
     }
   };
+  const share = () => copy("link", () => window.location.href);
+
+  const shownDates = formatSpanDual(rec.start, rec.end, rec.ongoing);
+  const reportUrl = reportIssueUrl(rec, shownDates, currentAddress(rec));
+  const reportMail =
+    `mailto:${EMAIL}` +
+    `?subject=${encodeURIComponent(`Islamic Timeline: correction for ${rec.id}`)}` +
+    `&body=${encodeURIComponent(
+      `Record: ${rec.name} (${rec.id})\nDates shown: ${shownDates}\n` +
+        `Address: ${currentAddress(rec)}\n\nWhat is wrong:\n\nWhat it should say:\n\nSources:\n`,
+    )}`;
 
   return (
     <aside
@@ -162,8 +183,12 @@ export default function DetailPanel() {
                 {rec.arabic}
               </div>
             )}
-            <div className="mt-1 text-[13px]" style={{ color: "var(--gold)" }}>
-              {formatSpanDual(rec.start, rec.end, rec.ongoing)}
+            <div
+              className="mt-1 text-[13px]"
+              style={{ color: "var(--gold)" }}
+              data-testid="record-dates"
+            >
+              {shownDates}
             </div>
           </div>
           <button
@@ -196,7 +221,7 @@ export default function DetailPanel() {
             {bookmarks.includes(rec.id) ? "★ Saved" : "☆ Save"}
           </button>
           <button className="btn" onClick={share}>
-            {copied ? "✓ Link copied" : "⎘ Share view"}
+            {copied === "link" ? "✓ Link copied" : "⎘ Share view"}
           </button>
         </div>
       </div>
@@ -266,6 +291,7 @@ export default function DetailPanel() {
           <p
             className="text-[13.5px] leading-relaxed"
             style={{ color: "var(--ink)" }}
+            data-testid="record-summary"
           >
             {rec.summary}
           </p>
@@ -414,6 +440,25 @@ export default function DetailPanel() {
               </li>
             ))}
           </ul>
+          {/* The copy buttons sit with the sources they draw on. In the sticky
+              header they pushed the action row to three lines on a 360 px
+              phone; here the header keeps its shape at every width. */}
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
+            <button
+              className="btn"
+              onClick={() =>
+                copy("citation", () => formatCitation(rec, new Date()))
+              }
+            >
+              {copied === "citation" ? "✓ Citation copied" : "❝ Copy citation"}
+            </button>
+            <button
+              className="btn"
+              onClick={() => copy("text", () => formatRecordText(rec, new Date()))}
+            >
+              {copied === "text" ? "✓ Text copied" : "¶ Copy as text"}
+            </button>
+          </div>
           <p className="mt-2 text-[11px]" style={{ color: "var(--ink-faint)" }}>
             Dates follow the cited references; see the{" "}
             <a className="underline decoration-dotted" href="./methodology/">
@@ -421,9 +466,52 @@ export default function DetailPanel() {
             </a>{" "}
             for conventions and the full bibliography.
           </p>
+          <p className="mt-1.5 text-[11px]" style={{ color: "var(--ink-faint)" }}>
+            <a
+              className="underline decoration-dotted"
+              href={reportUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                // The address may have moved since this rendered; send the live one.
+                e.currentTarget.href = reportIssueUrl(
+                  rec,
+                  shownDates,
+                  currentAddress(rec),
+                );
+              }}
+            >
+              Report a problem
+            </a>{" "}
+            with this record, or{" "}
+            <a className="underline decoration-dotted" href={reportMail}>
+              email a correction
+            </a>
+            .
+          </p>
         </section>
       </div>
     </aside>
+  );
+}
+
+/* ---------------------------- report a problem ---------------------------- */
+
+/** The page's own address when there is one, else the record inside the instrument. */
+function currentAddress(rec: TimelineRecord): string {
+  return typeof window === "undefined" ? instrumentLinkOf(rec) : window.location.href;
+}
+
+/** The correction form on the repository, with this record filled in. */
+function reportIssueUrl(rec: TimelineRecord, dates: string, address: string): string {
+  return (
+    `https://github.com/${REPO}/issues/new` +
+    `?template=correct-record.yml` +
+    `&title=${encodeURIComponent(`Correction: ${rec.name}`)}` +
+    `&record=${encodeURIComponent(rec.id)}` +
+    `&name=${encodeURIComponent(rec.name)}` +
+    `&dates=${encodeURIComponent(dates)}` +
+    `&url=${encodeURIComponent(address)}`
   );
 }
 

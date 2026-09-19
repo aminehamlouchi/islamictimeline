@@ -57,11 +57,18 @@ ${sources}
 
 _Submitted via the in-app "Suggest a record" form._`;
 
+  // The structured form on the repository takes each field by its id, so the
+  // issue arrives as data rather than as a block of prose.
   const issueUrl =
     `https://github.com/${REPO}/issues/new` +
-    `?title=${encodeURIComponent(`Suggested record: ${name || "(unnamed)"}`)}` +
-    `&labels=${encodeURIComponent("suggestion")}` +
-    `&body=${encodeURIComponent(body)}`;
+    `?template=suggest-record.yml` +
+    `&title=${encodeURIComponent(`Suggested record: ${name || "(unnamed)"}`)}` +
+    `&name=${encodeURIComponent(name)}` +
+    `&kind=${encodeURIComponent(kind)}` +
+    `&dates=${encodeURIComponent(dates)}` +
+    `&region=${encodeURIComponent(region)}` +
+    `&why=${encodeURIComponent(why)}` +
+    `&sources=${encodeURIComponent(sources)}`;
 
   const mailUrl =
     `mailto:${EMAIL}` +
@@ -221,3 +228,6 @@ function Field({
     </label>
   );
 }
+
+/** Shared with the record panel's "Report a problem" link. */
+export { EMAIL, REPO };
