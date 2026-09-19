@@ -41,3 +41,18 @@ records, all 392 carrying at least one citation** (verified by
   and the search palette trapped the key.
 - **A synthetic or already-released pointer could abort a gesture** through an
   unguarded `setPointerCapture`.
+- **Every visit after the day of the build logged a console error.** Today's
+  date was rendered into the static HTML at build time, so a visitor on any
+  later calendar day saw a date the document did not claim, which React reports
+  as a hydration mismatch. The date is now read from the visitor's clock.
+
+### Performance and accessibility
+
+- Gold that carries text is darkened to clear 4.5:1 in both themes; the brand
+  gold is unchanged where it fills a marker. Zoom presets meet the 24 px target
+  size. The page is pinch-zoomable again, since the canvas already claims pinch
+  through `touch-action`.
+- Fonts moved off the critical path, the stylesheet travels inside the document,
+  the atlas loads on demand, and the markers mount in stages.
+- Lighthouse mobile on the live site went from Performance 74 and Accessibility
+  84 to a median of 92 and a steady 100, with Best Practices and SEO at 100.
