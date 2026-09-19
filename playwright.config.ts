@@ -4,6 +4,10 @@ import { defineConfig, devices } from "@playwright/test";
  * Two suites run against either a locally served production build or the live
  * site (set E2E_BASE_URL). Chromium and WebKit both matter: a large share of
  * visitors arrive on iPhones.
+ *
+ * A failed test keeps its trace and a screenshot under test-results/, and on CI
+ * an HTML report is written to playwright-report/; the workflow uploads both
+ * when the suite fails, so a red run can be read without reproducing it.
  */
 const baseURL = process.env.E2E_BASE_URL ?? "http://127.0.0.1:4321/islamictimeline/";
 
@@ -14,8 +18,13 @@ export default defineConfig({
   fullyParallel: false,
   workers: process.env.CI ? 2 : 3,
   retries: process.env.CI ? 1 : 0,
-  reporter: [["list"]],
-  use: { baseURL, trace: "off", video: "off" },
+  reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
+  use: {
+    baseURL,
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
+    video: "off",
+  },
   projects: [
     {
       name: "chromium-desktop",

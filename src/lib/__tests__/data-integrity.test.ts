@@ -119,6 +119,22 @@ describe("dataset integrity", () => {
     }
   });
 
+  it("a date that lists alternative years is marked disputed", () => {
+    // altYears is the evidence that the sources disagree, so the precision has
+    // to say so. The reverse is not required: a disputed date may carry only a
+    // note, and the pre-570 sirah band is circa or disputed by policy.
+    for (const r of allRecords) {
+      const dates = [r.start, r.end, ...(r.details ?? []).map((d) => d.date)];
+      for (const d of dates) {
+        if (!d?.altYears?.length) continue;
+        expect(
+          d.precision,
+          `${r.id}: altYears [${d.altYears.join(", ")}] needs precision "disputed"`,
+        ).toBe("disputed");
+      }
+    }
+  });
+
   it("attested Hijri years agree with the CE year within tabular tolerance", () => {
     for (const r of allRecords) {
       for (const d of [r.start, r.end]) {

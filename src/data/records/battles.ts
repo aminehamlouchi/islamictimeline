@@ -110,7 +110,7 @@ export const battleRecords: TimelineRecord[] = [
     arabic: "فتح بيت المقدس",
     start: {
       year: 637,
-      precision: "circa",
+      precision: "disputed",
       altYears: [638],
       hijri: { year: 16, source: "attested" },
       note: "637 or 638 CE / 16–17 AH; the sources differ by months.",
