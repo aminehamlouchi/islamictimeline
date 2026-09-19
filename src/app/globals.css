@@ -365,3 +365,21 @@ body {
 html[data-onboarded] .tl-intro {
   display: none;
 }
+
+/* Skip links and era landmarks: parked above the viewport until they take
+   keyboard focus, then a pill at the top of the page, over the header. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 50%;
+  z-index: 60;
+  border-color: var(--gold);
+  color: var(--gold-ink);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 1rem));
+}
+.skip-link:focus {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}

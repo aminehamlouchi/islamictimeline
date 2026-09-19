@@ -196,10 +196,30 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  /* ----------------------------- skip links ---------------------------- */
+  // A bare fragment link only moves the browser's focus start point; landing
+  // on the first control is what a keyboard user pressed Enter for.
+  const skipToControls = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const first = document.querySelector<HTMLElement>(
+      "#controls button, #controls a",
+    );
+    if (!first) return;
+    e.preventDefault();
+    first.focus();
+  };
+
+  // The header precedes the instrument in the document so the controls come
+  // first in the Tab order. Both are fixed or absolute, so nothing repaints.
   return (
     <main className="relative h-dvh w-full overflow-hidden">
-      <TimelineCanvas />
+      <a className="btn skip-link" href="#controls" onClick={skipToControls}>
+        Skip to controls
+      </a>
+      <a className="btn skip-link" href="./records/">
+        Skip to the record index
+      </a>
       <TopBar />
+      <TimelineCanvas />
       <YearIndicator />
       <MobileYearPill />
       <ReturnToToday />

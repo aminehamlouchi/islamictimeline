@@ -55,6 +55,12 @@ const LANE_COLOR: Record<string, string> = {
 
 const EMPTY_LAYOUT = { items: [], clusters: [], packedAtPpy: 1 };
 
+// The name of the instrument and its description carry the same instructions:
+// a screen reader announces the name on focus and can re-read the description
+// on request.
+const CANVAS_INSTRUCTIONS =
+  "Vertical timeline of Islamic history. Today at top; scroll down to travel into the past. Use arrow keys to pan, plus and minus to zoom, Home for today.";
+
 function barWidth(imp: number): number {
   return imp >= 5 ? 8 : imp === 4 ? 6.5 : imp === 3 ? 5 : 4;
 }
@@ -465,8 +471,13 @@ export default function TimelineCanvas() {
       }}
       onDoubleClick={onDoubleClick}
       role="application"
-      aria-label="Vertical timeline of Islamic history. Today at top; scroll down to travel into the past. Use arrow keys to pan, plus and minus to zoom, Home for today."
+      aria-label={CANVAS_INSTRUCTIONS}
+      aria-describedby="timeline-canvas-help"
+      tabIndex={0}
     >
+      <p id="timeline-canvas-help" className="sr-only">
+        {CANVAS_INSTRUCTIONS}
+      </p>
       <svg width={size.w} height={size.h} className="block">
         <defs>
           <pattern
@@ -1212,7 +1223,10 @@ const ClusterMarker = memo(function ClusterMarker({
         zoomHere();
       }}
       onKeyDown={(e) => {
-        if (e.key === "Enter") zoomHere();
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          zoomHere();
+        }
       }}
     >
       <circle

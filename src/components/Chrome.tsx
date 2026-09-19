@@ -14,6 +14,7 @@ import { DEFAULT_PPY, useApp } from "@/lib/store";
 import {
   bandOf,
   DOMAIN_BOTTOM,
+  LINEAR_FLOOR,
   TimeScale,
   ZOOM_LEVELS,
   zoomLevelFor,
@@ -61,8 +62,13 @@ export function TopBar() {
           الخطّ الزمني للتاريخ الإسلامي
         </p>
       </div>
+      {/*
+        Below the sm breakpoint the buttons are icon-only and the bar wraps to a
+        second row; tighter sides keep that row clear of the year pill.
+      */}
       <nav
-        className="pointer-events-auto flex flex-wrap items-center justify-end gap-1.5"
+        id="controls"
+        className="pointer-events-auto flex flex-wrap items-center justify-end gap-1.5 max-sm:[&>.btn]:px-2"
         aria-label="Application controls"
       >
         <button
@@ -139,17 +145,51 @@ export function TopBar() {
           {theme === "dark" ? "◐" : theme === "light" ? "○" : "◑"}
         </button>
         <button
-          className="btn hidden sm:inline-flex"
+          className="btn"
           onClick={() => setHelpOpen(true)}
           aria-label="Keyboard shortcuts and help"
         >
           ?
         </button>
+        <a className="btn hidden sm:inline-flex" href="./records/">
+          Index
+        </a>
         <a className="btn hidden sm:inline-flex" href="./methodology/">
           Methodology
         </a>
       </nav>
+      <EraLandmarks />
     </header>
+  );
+}
+
+/* ---------------------------- era landmarks ---------------------------- */
+
+/**
+ * One stop per era for keyboard and screen-reader users: eleven landmarks in
+ * place of several hundred markers. The nav lives in the header, outside the
+ * instrument's role="application", so a screen reader in browse mode can
+ * reach it, and it follows the controls in the Tab order. Each button is
+ * parked off screen until it takes focus.
+ */
+export function EraLandmarks() {
+  const flyTo = useApp((s) => s.flyTo);
+  const currentId = useApp((s) => eraForYear(s.centerYear).id);
+  return (
+    <nav className="pointer-events-auto absolute" aria-label="Eras">
+      {ERAS.map((era) => (
+        <button
+          key={era.id}
+          className="btn skip-link"
+          aria-current={era.id === currentId ? "true" : undefined}
+          onClick={() =>
+            flyTo((era.startYear + Math.min(era.endYear, NOW_YEAR)) / 2)
+          }
+        >
+          {era.label}
+        </button>
+      ))}
+    </nav>
   );
 }
 
@@ -419,6 +459,7 @@ export function YearRail() {
   const centerYear = useApp((s) => s.centerYear);
   const ppy = useApp((s) => s.ppy);
   const flyTo = useApp((s) => s.flyTo);
+  const panByPixels = useApp((s) => s.panByPixels);
   const [h, setH] = useState(600);
 
   useEffect(() => {
@@ -452,17 +493,57 @@ export function YearRail() {
     flyTo(yearFor(e.clientY - rect.top));
   };
 
+  // The keys a slider promises. Each one stops here: the window handler in
+  // App.tsx pans on the same keys and would otherwise move the view twice.
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const year = useApp.getState().centerYear;
+    switch (e.key) {
+      case "ArrowDown":
+        panByPixels(e.shiftKey ? 600 : 120); // down, into the past
+        break;
+      case "ArrowUp":
+        panByPixels(e.shiftKey ? -600 : -120); // up, toward today
+        break;
+      case "PageDown":
+        flyTo(year - 100);
+        break;
+      case "PageUp":
+        flyTo(year + 100);
+        break;
+      case "Home":
+        flyTo(NOW_YEAR);
+        break;
+      case "End":
+        flyTo(DOMAIN_BOTTOM);
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  // The year and its era, for example "1257 CE, Abbasid era". The undated cap
+  // below LINEAR_FLOOR carries no year anywhere in the interface.
+  const y = Math.round(Math.min(centerYear, NOW_YEAR));
+  const valueText =
+    y < LINEAR_FLOOR
+      ? "earliest prophets, undated"
+      : `${y < 0 ? `${-y} BCE` : `${y} CE`}, ${eraForYear(y).label}`;
+
   return (
     <div
       ref={ref}
       className="fixed bottom-2 right-2 top-14 z-30 hidden w-7 cursor-pointer sm:block"
       onPointerDown={onPointer}
       onPointerMove={onPointer}
+      onKeyDown={onKeyDown}
       role="slider"
       aria-label="Era navigation rail, click to jump through history"
       aria-valuemin={DOMAIN_BOTTOM}
       aria-valuemax={NOW_YEAR}
-      aria-valuenow={Math.round(centerYear)}
+      aria-valuenow={y}
+      aria-valuetext={valueText}
       aria-orientation="vertical"
       tabIndex={0}
       data-testid="year-rail"
