@@ -27,7 +27,9 @@ for (const page of pages) {
       broken.push(`${page}: ${raw} (outside basePath ${BASE})`);
       continue;
     }
-    const rel = raw.slice(BASE.length).split(/[?#]/)[0];
+    // Hrefs arrive percent-encoded (a route chunk lives under app/r/[id]/,
+    // written as %5Bid%5D); the server decodes them, so this must too.
+    const rel = decodeURIComponent(raw.slice(BASE.length).split(/[?#]/)[0]);
     const target = join(OUT, rel);
     checked++;
     const ok =
