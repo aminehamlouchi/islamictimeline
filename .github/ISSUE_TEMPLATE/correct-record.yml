@@ -1,0 +1,49 @@
+name: Correct a record
+description: Report a wrong date, name, summary, connection or source on a record that is already on the timeline.
+title: "Correction: "
+labels: ["correction"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every record cites its sources, so a correction needs a source as well. The "Report a problem" link on a record fills in the first four fields.
+  - type: input
+    id: record
+    attributes:
+      label: Record id
+      description: The last part of the record's address, for example al-bukhari.
+      placeholder: al-bukhari
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Record name
+  - type: input
+    id: dates
+    attributes:
+      label: Dates as displayed
+  - type: input
+    id: url
+    attributes:
+      label: Address where you saw it
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What is wrong
+      description: Quote the text or the date as the record shows it.
+    validations:
+      required: true
+  - type: textarea
+    id: correct
+    attributes:
+      label: What it should say
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: The reference that supports the correction, with the page, entry or volume.
+    validations:
+      required: true

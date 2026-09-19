@@ -1,0 +1,60 @@
+name: Suggest a record
+description: Propose a person, book, state, battle, event, institution, movement or place that the timeline does not have.
+title: "Suggested record: "
+labels: ["suggestion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Records are added by hand after review. Each one needs at least two reputable references, with its dates checked against them.
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      description: The name as it should appear on the timeline. Add the Arabic form if you know it.
+      placeholder: "Fāṭima al-Fihrī, al-Muwaṭṭaʾ, Battle of Nahāwand"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - person
+        - book
+        - empire / dynasty
+        - battle / event
+        - institution / place
+        - school / movement
+    validations:
+      required: true
+  - type: input
+    id: dates
+    attributes:
+      label: Approximate dates
+      description: Gregorian, with the Hijri year when the sources give one. Write "c." before an approximate year, and list the alternatives when the sources disagree.
+      placeholder: "780–855 CE / 164–241 AH"
+    validations:
+      required: true
+  - type: input
+    id: region
+    attributes:
+      label: Region
+      description: Where it lived, was written, or took place.
+      placeholder: "al-Andalus, Khurasan, West Africa"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it belongs on the timeline
+      description: A sentence or two on what it did or what happened.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: At least two reputable references, for example an Encyclopaedia of Islam entry, a Britannica entry, an academic monograph, or a primary source with the exact reference. A record is not added without them.
+    validations:
+      required: true
