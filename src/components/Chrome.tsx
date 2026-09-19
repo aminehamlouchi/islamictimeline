@@ -207,10 +207,16 @@ export function YearIndicator() {
   const level = zoomLevelFor(ppy);
   const back = NOW_YEAR - y;
 
-  const today = useMemo(() => {
-    const h = todayHijri();
-    const d = new Date();
-    return { h, d };
+  // Today's date belongs to the visitor's clock, not to the build's. Baking it
+  // into the static HTML meant every visit after the day of the build rendered
+  // a different date than the document carried, which React reports as a
+  // hydration mismatch. It is filled in on the client, after mount.
+  const [today, setToday] = useState<{
+    h: ReturnType<typeof todayHijri>;
+    d: Date;
+  } | null>(null);
+  useEffect(() => {
+    setToday({ h: todayHijri(), d: new Date() });
   }, []);
 
   // "Today" card while the today-cap is on screen and we're not tracking a cursor
@@ -236,15 +242,23 @@ export function YearIndicator() {
             className="mt-1.5 text-[12px]"
             style={{ color: "var(--ink-soft)" }}
           >
-            {today.d.toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
+            {today
+              ? today.d.toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
+              : "\u00a0"}
           </div>
           <div className="text-[12px]" style={{ color: "var(--ink-soft)" }}>
-            ≈ {today.h.day} {HIJRI_MONTHS[today.h.month - 1]} {today.h.year} AH{" "}
-            <span style={{ color: "var(--ink-faint)" }}>(calc.)</span>
+            {today ? (
+              <>
+                ≈ {today.h.day} {HIJRI_MONTHS[today.h.month - 1]} {today.h.year}{" "}
+                AH <span style={{ color: "var(--ink-faint)" }}>(calc.)</span>
+              </>
+            ) : (
+              "\u00a0"
+            )}
           </div>
         </>
       ) : (

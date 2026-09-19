@@ -267,3 +267,26 @@ test("the first-visit introduction appears and can be skipped", async ({ browser
   await expect(intro).toBeHidden();
   await ctx.close();
 });
+
+test("a first visit from a clock unlike the build's is still clean", async ({
+  browser,
+  baseURL,
+}) => {
+  // The static HTML is generated once and read for months. A visitor whose
+  // calendar day differs from the build's must not hit a hydration mismatch,
+  // which is what happens when today's date is baked into the document.
+  const ctx = await browser.newContext({
+    baseURL,
+    timezoneId: "Pacific/Kiritimati",
+    locale: "en-GB",
+  });
+  const fresh = await ctx.newPage();
+  const errors: string[] = [];
+  fresh.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+  fresh.on("pageerror", (e) => errors.push(`pageerror: ${e.message}`));
+  await fresh.goto("./", { waitUntil: "load" });
+  await fresh.waitForTimeout(2500);
+  expect(errors, `console errors: ${errors.join(" | ")}`).toHaveLength(0);
+  await expect(fresh.getByTestId("timeline-canvas")).toBeVisible();
+  await ctx.close();
+});
