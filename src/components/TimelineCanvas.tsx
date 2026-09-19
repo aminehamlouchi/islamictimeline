@@ -6,6 +6,7 @@
  */
 
 import {
+  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -25,7 +26,7 @@ const useMeasure =
   typeof window === "undefined" ? useEffect : useLayoutEffect;
 import {
   computeLayout,
-  itemsInWindow,
+  resolveLayout,
   labelImportance,
   visibleImportance,
   zoomBucketOf,
@@ -190,7 +191,20 @@ export default function TimelineCanvas() {
 
   const scale = useMemo(() => new TimeScale(ppy, NOW_YEAR), [ppy]);
   const offsetY = scale.yOf(centerYear) - size.h / 2;
-  const all = itemsInWindow(layout, offsetY - 300, offsetY + size.h + 300, scale);
+  // Resolving is memoized on the layout and the scale, so a marker object keeps
+  // its identity while only the viewport offset moves. That is what lets the
+  // memoized Marker below skip everything already on screen when the next mount
+  // stage arrives, instead of rebuilding the whole instrument three times.
+  const resolved = useMemo(() => resolveLayout(layout, scale), [layout, scale]);
+  const yMin = offsetY - 300;
+  const yMax = offsetY + size.h + 300;
+  const all = useMemo(
+    () => ({
+      items: resolved.items.filter((i) => i.yTop <= yMax && i.yBottom >= yMin),
+      clusters: resolved.clusters.filter((c) => c.y >= yMin && c.y <= yMax),
+    }),
+    [resolved, yMin, yMax],
+  );
   const win =
     stage >= 3
       ? all
@@ -356,7 +370,7 @@ export default function TimelineCanvas() {
     return out;
   }, [ppy, yearBottom, yearTop]);
 
-  const sy = (absY: number) => absY - offsetY;
+  const sy = useCallback((absY: number) => absY - offsetY, [offsetY]);
 
   /* ------------------- label collision management ------------------- */
   // Horizontal labels (points + person bars) are deduplicated by priority;
@@ -807,7 +821,7 @@ export default function TimelineCanvas() {
 
 /* ---------------------------------------------------------------------- */
 
-function Marker({
+const Marker = memo(function Marker({
   it,
   cx,
   sy,
@@ -1155,9 +1169,9 @@ function Marker({
       )}
     </g>
   );
-}
+});
 
-function ClusterMarker({
+const ClusterMarker = memo(function ClusterMarker({
   c,
   cx,
   sy,
@@ -1218,4 +1232,4 @@ function ClusterMarker({
       </text>
     </g>
   );
-}
+});
