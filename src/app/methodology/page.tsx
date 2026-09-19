@@ -163,12 +163,13 @@ export default function Methodology() {
 
       <Section title="The vertical scale">
         <p>
-          Today sits at the top; scrolling down travels into the past. Across
-          the whole Islamic era the scale is spatially honest, a century
-          occupies the same height wherever it falls at a given zoom level. One
-          clearly hatched band at the bottom compresses late antiquity (200–500
-          CE) so pre-Islamic context stays reachable without pretending to share
-          the scale; it is labeled as compressed wherever it appears.
+          Today sits at the top; scrolling down travels into the past. From
+          today back to 3300 BCE the scale is one uniform ruler, so a century
+          occupies the same height wherever it falls at a given zoom level,
+          before Islam included. Below that sits a single fixed-height ordinal
+          band for the earliest prophets, hatched and captioned wherever it
+          appears: it is explicitly not to scale, and no year is ever displayed
+          inside it.
         </p>
       </Section>
 
@@ -285,8 +286,8 @@ export default function Methodology() {
         style={{ borderColor: "var(--rule)", color: "var(--ink-faint)" }}
       >
         The Islamic Timeline, a demonstration of chronological visualization
-        with historical integrity. Code MIT; coastline data public domain
-        (Natural Earth).
+        with historical integrity. The original code and dataset carry no
+        license yet; third-party map data and fonts are listed in NOTICE.
       </footer>
     </main>
   );

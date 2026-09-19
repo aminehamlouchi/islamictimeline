@@ -65,3 +65,7 @@ records, all 392 carrying at least one citation** (verified by
   the atlas loads on demand, and the markers mount in stages.
 - Lighthouse mobile on the live site went from Performance 74 and Accessibility
   84 to a median of 92 and a steady 100, with Best Practices and SEO at 100.
+  The 92 is the median measured on 2026-09-18 against
+  `https://aminehamlouchi.com/timeline/`, the live address that day; a later
+  median of seven runs at `https://aminehamlouchi.com/islamictimeline/` scored
+  96.

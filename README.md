@@ -48,12 +48,12 @@ src/
                   overlap/gap engine, layout packing, search, URL state, store
   lib/__tests__/  unit tests: calendar math, scale, overlaps, URL state,
                   dataset integrity, and layout drift
-e2e/              Playwright: path independence and interaction smoke
   data/records/   the historical dataset (see below)
   data/geo/       cities, schematic extents, trade routes, generated coastline
   components/     TimelineCanvas (the instrument), DetailPanel, Compare,
                   MapPanel, Chrome, Overlays
   app/            Next.js App Router pages (/, /methodology)
+e2e/              Playwright: path independence and interaction smoke
 scripts/          generate-land.mjs (Natural Earth to SVG), screenshots.mjs, serve-out.mjs
 ```
 
@@ -96,9 +96,9 @@ Map data: add cities in `data/geo/cities.ts`; approximate state extents (schemat
 
 ## What's demonstrated vs. future extensions
 
-**Working end-to-end:** the zoomable instrument with lens; importance scaling; nested timelines; relations; comparison tray/view with computed overlap-gap sentences; generated contextual observations; synchronized schematic atlas with playback slider, routes, and figure journeys; search incl. Hijri years; lane/region/prominence filters; legend; onboarding; light/dark/auto themes; shareable URLs; bookmarks; keyboard + reduced-motion + screen-reader labels; 39 unit tests; ~155 sourced records across all major regions and periods.
+**Working end-to-end:** the zoomable instrument with lens; importance scaling; nested timelines; relations; comparison tray/view with computed overlap-gap sentences; generated contextual observations; synchronized schematic atlas with playback slider, routes, and figure journeys; search incl. Hijri years; lane/region/prominence filters; legend; onboarding; light/dark/auto themes; shareable URLs; bookmarks; keyboard + reduced-motion + screen-reader labels; a unit suite whose data-health test prints the current record and citation counts on every run; sourced records across all major regions and periods.
 
-**Deliberate foundations for later:** sourced boundary polygons can replace the schematic extents through the same `StateExtent` interface; the dataset is a curated demonstration (deep coverage invites a CMS); nested timelines currently plot each record's `details` list (richer per-empire ruler chains welcome); pre-570 CE appears only as a clearly-marked compressed band.
+**Deliberate foundations for later:** sourced boundary polygons can replace the schematic extents through the same `StateExtent` interface; the dataset is a curated demonstration (deep coverage invites a CMS); nested timelines currently plot each record's `details` list (richer per-empire ruler chains welcome); below 3300 BCE the earliest prophets occupy one fixed-height undated cap, labeled not to scale, because tradition preserves their order and not their dates.
 
 ## Integrity, in one line
 
