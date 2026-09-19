@@ -52,7 +52,8 @@ src/
   data/geo/       cities, schematic extents, trade routes, generated coastline
   components/     TimelineCanvas (the instrument), DetailPanel, Compare,
                   MapPanel, Chrome, Overlays
-  app/            Next.js App Router pages (/, /methodology)
+  app/            Next.js App Router pages (/, /methodology, /records,
+                  /r/<id> for every record, sitemap)
 e2e/              Playwright: path independence and interaction smoke
 scripts/          generate-land.mjs (Natural Earth to SVG), screenshots.mjs, serve-out.mjs
 ```

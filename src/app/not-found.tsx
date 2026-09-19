@@ -35,6 +35,9 @@ export default function NotFound() {
         <Link href="/methodology/" prefetch={false} className="btn">
           Methodology &amp; sources
         </Link>
+          <Link href="/records/" prefetch={false} className="btn">
+            All records
+          </Link>
       </div>
     </main>
   );

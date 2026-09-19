@@ -4,6 +4,122 @@ Data changes are logged here so any claim on the site can be audited against
 the commit that introduced it. Code changes are summarized; the git history is
 the full record.
 
+## 2026-09-19, council session
+
+Eight changes chosen by a review council of six seats (a student of knowledge, a teacher, a senior engineer, an accessibility advocate, a product strategist and a skeptic), peer-ranked anonymously, synthesized by a chairman and checked by a fresh-eyes validator. The full verdict, dissent and open questions are kept with the project notes.
+
+### Data
+
+- `conquest-of-jerusalem-637` (Surrender of Jerusalem): `start.precision`
+  changed from `circa` to `disputed`. The record already listed 638 as an
+  alternative year and its note reads "637 or 638 CE", which is the definition
+  of `disputed` in `src/lib/types.ts`. The years, the Hijri year and both
+  citations (Kennedy, The Great Arab Conquests; EI2 s.v. al-Ḳuds) are
+  unchanged. A new case in `data-integrity.test.ts` requires `disputed` on any
+  date that carries `altYears`.
+- The 392 records the site launched with are frozen as ids in
+  `src/data/baseline-ids.json`. `data-health.test.ts` fails if one of them
+  stops resolving, and holds any record outside the list to two distinct
+  citations and a line in this file.
+
+### Site
+
+- Two new buttons under a record's sources: **Copy citation** puts one line on
+  the clipboard
+  (name, dual dates with their precision, the site, the record's own page under
+  `/r/<id>/`, the date of access) followed by the record's sources, and **Copy
+  as text** copies the whole record: dates with alternatives, summary,
+  connections, sources and both addresses. The formatters live in
+  `src/lib/citation.ts` and are checked over every record by
+  `src/lib/__tests__/citation.test.ts`; `e2e/cite.spec.ts` reads the clipboard
+  back in Chromium.
+- A **Report a problem** link under a record's sources opens a structured
+  correction form with the record's id, name, displayed dates and address
+  filled in, with an email fallback that carries the id in the subject.
+- Suggestions and corrections now arrive as GitHub issue forms
+  (`.github/ISSUE_TEMPLATE/suggest-record.yml` and `correct-record.yml`, every
+  field required, each asking for sources). The in-app Suggest form
+  pre-fills the suggestion form field by field; the email fallback to
+  `aminehamlouchibusiness@gmail.com` is unchanged. Blank issues are off.
+- Created the `suggestion` and `correction` labels on the repository; the old
+  `labels=suggestion` parameter had been dropped by GitHub because no such
+  label existed.
+- Added `CONTRIBUTING.md`: which record file for which lane, the field
+  checklist, the two-citation rule, the CHANGELOG line and the checks to run.
+- The unit suite scans `src`, `e2e`, `scripts`, `.github`, `changelog.d` and
+  the prose files at the root for the em dash (U+2014) and fails on a hit.
+- CI fails the build if the instrument's page chunk passes 130 kB gzipped
+  (`scripts/size-budget.mjs`; 110 kB when the budget was set), keeps the
+  Playwright traces and screenshots of a failed run as a workflow artifact,
+  prints Lighthouse mobile scores for `/` without gating on them, and runs a
+  pull request in its own concurrency group instead of the deployment queue.
+- Corrected public statements that no longer held. The methodology footer
+  claimed an MIT license for the code; no license has been chosen, so the
+  footer now says that and points to `NOTICE`. The vertical-scale section
+  described a hatched band compressing 200 to 500 CE; the scale is one uniform
+  ruler back to 3300 BCE with a single undated cap for the earliest prophets,
+  and the section and the README now say so. The README no longer hard-codes a
+  test or record count and lists `e2e/` outside `src/`. The Lighthouse line for
+  2026-09-18 names the run and address behind its 92.
+- Added `src/lib/__tests__/public-copy.test.ts`, which fails if any public
+  file claims a code license while no `LICENSE` file exists at the root.
+- **A keyboard path through the instrument.** Two skip links open the Tab
+  order, one to the controls and one to the record index, and the header now
+  precedes the canvas in the document so the controls come before several
+  hundred markers. A hidden `Eras` landmark in the header carries one button
+  per era that flies the view to its middle; it sits outside the instrument's
+  `role="application"` so a screen reader in browse mode can reach it. The
+  era rail answers to the keys its slider role promises (arrows, Page Up and
+  Down, Home, End), one move per press, and reports its position as a year and
+  era, for example `1257 CE, Abbasid era`. The canvas root takes focus and
+  carries its instructions as a description. Space opens a cluster as Enter
+  does. The `?` help button is on the phone bar, where the icon-only buttons
+  now sit tighter so the bar's second row clears the year pill, and an `Index`
+  link sits beside Methodology. Covered by `e2e/keyboard.spec.ts`.
+- Search results are a real combobox: the input names the highlighted option
+  through `aria-activedescendant`, each option is the clickable element itself
+  (no button nested inside it), and a status line reports the number of
+  results.
+- Marker names read out the record's kind and, where the sources disagree on a
+  date, the word "disputed": "Battle of al-Qādisiyya, 636 CE · 15 AH, Battle,
+  disputed". The lens readout says the same while the pointer is over such a
+  marker.
+- On phones the first-visit introduction sits above the zoom control instead of
+  over it (step four points at those presets). A tap or a click on the canvas
+  dismisses it as Skip does; a drag or a pinch does not. The support card's
+  75 s timer starts when the introduction closes, so it now starts at that tap
+  as well; the interval is unchanged.
+- The help sheet links to the Methodology page and the record index and opens
+  the legend, so a phone has a route to all three.
+- Every record has a static page at `/r/<id>/`: name, Arabic, dates in both
+  calendars with their precision badges and alternatives, summary, location,
+  nested events, connections linked to their own pages, sources, and one link
+  that opens the instrument at that record. The text block lives in
+  `src/components/RecordText.tsx` so the detail panel can adopt it later.
+- Each record page carries schema.org JSON-LD (`Person`, `Book`, `Event`,
+  `Organization`, or `Thing` for a movement) under one rule: a machine date is
+  emitted only when the sources give it to the year or better and it falls
+  from 1 CE on; circa, range, disputed, undated and BCE dates are written out in
+  words in the description instead. Years below 1000 are zero-padded to ISO
+  8601. No `sameAs` is emitted, since no citation carries a URL. Checked over all
+  392 records by `src/lib/__tests__/jsonld.test.ts` and in both engines by
+  `e2e/records.spec.ts`.
+- A sitemap at `/sitemap.xml` lists every page. Crawlers read `robots.txt` only
+  at the origin root, which this repository does not own, so the sitemap must be
+  referenced from there or submitted by hand.
+- The 404 page is the site's own, with a link home.
+- CI prints the size of the export and the record page count after the build.
+- Added `/records/`, a static index of all 392 records by era and lane, the
+  text alternative to the canvas. It is plain HTML with no script of its own:
+  every name links into the instrument at that record (`/?sel=<id>`), every era
+  section is a permalink such as `/records/#abbasid`, and a print stylesheet
+  sets it in black ink without underlines. A row carries the name, the Arabic
+  name, the kind, and the dual-calendar dates with their precision and any
+  alternative years; importance, summaries and citations stay in the record
+  view. The five undated earliest prophets are listed in traditional order with
+  no year. Lane labels moved into `src/lib/labels.ts` beside the kind labels.
+  Covered by `e2e/index.spec.ts`.
+
 ## 2026-09-19
 
 ### Site
