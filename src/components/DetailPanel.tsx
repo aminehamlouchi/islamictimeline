@@ -23,33 +23,8 @@ import { useApp } from "@/lib/store";
 import { CATEGORY_LABEL, schoolCategory } from "@/lib/schools";
 import type { DetailEvent, RelationType, TimelineRecord } from "@/lib/types";
 import Emblem from "./Emblem";
+import { KIND_LABEL, REL_LABEL } from "@/lib/labels";
 
-const KIND_LABEL: Record<string, string> = {
-  person: "Person",
-  book: "Book",
-  empire: "State / dynasty",
-  battle: "Battle",
-  event: "Event",
-  institution: "Institution",
-  movement: "Movement",
-  place: "Place",
-};
-
-const REL_LABEL: Record<RelationType, string> = {
-  teacher_of: "Students",
-  student_of: "Teachers",
-  wrote: "Works",
-  written_by: "Author",
-  fought_in: "Battles",
-  participant: "Participants",
-  ruled_during: "Rulers & figures",
-  occurred_under: "Under",
-  part_of: "Part of",
-  founded: "Founded",
-  founded_by: "Founded by",
-  influenced: "Influence",
-  related: "Related",
-};
 
 const REL_ORDER: RelationType[] = [
   "written_by",

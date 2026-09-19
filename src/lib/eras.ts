@@ -98,5 +98,8 @@ export const ERAS: Era[] = [
 
 export function eraForYear(year: number): Era {
   for (const e of ERAS) if (year >= e.startYear && year < e.endYear) return e;
-  return ERAS[ERAS.length - 1];
+  // Off the ends: the undated cap below the first era belongs with the first
+  // era, and anything past today belongs with the last. Falling through to the
+  // last era for every year put the earliest prophets in the contemporary era.
+  return year < ERAS[0].startYear ? ERAS[0] : ERAS[ERAS.length - 1];
 }
